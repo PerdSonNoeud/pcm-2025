@@ -41,6 +41,7 @@ dependencies {
     // ROOM
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.foundation.layout)
     ksp(libs.room.compiler)
 
     // Compose BOM
