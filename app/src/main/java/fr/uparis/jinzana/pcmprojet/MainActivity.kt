@@ -15,7 +15,7 @@ import fr.uparis.jinzana.pcmprojet.ui.theme.PCMProjetTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+       // enableEdgeToEdge()
         setContent {
             PCMProjetTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
