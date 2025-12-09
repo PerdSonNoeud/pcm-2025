@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-
 }
 
 android {
@@ -53,10 +52,6 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.org.jetbrains.kotlin.plugin.serialization.gradle.plugin)
-
-
-
-
     ksp(libs.room.compiler)
 
     // Compose BOM

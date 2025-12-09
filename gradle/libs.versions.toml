@@ -13,22 +13,21 @@ navigationCommonAndroid = "2.9.6"
 orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.0"
 
 [libraries]
+room-runtime = { module = "androidx.room:room-runtime", version = "2.8.4" }
+room-ktx     = { module = "androidx.room:room-ktx",     version = "2.8.4" }
+room-compiler= { module = "androidx.room:room-compiler",version = "2.8.4" }
 
-room-runtime = { module = "androidx.room:room-runtime", version = "2.8.3" }
-room-ktx     = { module = "androidx.room:room-ktx",     version = "2.8.3" }
-room-compiler= { module = "androidx.room:room-compiler",version = "2.8.3" }
-
-lifecycle-runtime-ktx      = { module = "androidx.lifecycle:lifecycle-runtime-ktx",      version = "2.9.4" }
-lifecycle-viewmodel-compose= { module = "androidx.lifecycle:lifecycle-viewmodel-compose",version = "2.9.4" }
+lifecycle-runtime-ktx      = { module = "androidx.lifecycle:lifecycle-runtime-ktx",      version = "2.10.0" }
+lifecycle-viewmodel-compose= { module = "androidx.lifecycle:lifecycle-viewmodel-compose",version = "2.10.0" }
 coroutines-android         = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.2" }
 
-compose-bom        = { module = "androidx.compose:compose-bom", version = "2025.11.00" }
+compose-bom        = { module = "androidx.compose:compose-bom", version = "2025.12.00" }
 compose-ui         = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3  = { module = "androidx.compose.material3:material3" }
 
-activity-compose   = { module = "androidx.activity:activity-compose", version = "1.11.0" }
+activity-compose   = { module = "androidx.activity:activity-compose", version = "1.12.1" }
 core-ktx           = { module = "androidx.core:core-ktx", version = "1.17.0" }
 foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3Runtime" }
