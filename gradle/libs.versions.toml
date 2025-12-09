@@ -2,8 +2,18 @@
 kotlin = "2.2.21"
 agp = "8.13.1"
 ksp = "2.2.20-2.0.4"
+foundationLayout = "1.9.5"
+
+navigation3Runtime = "1.0.0"
+materialIconsExtended = "1.7.8"
+material3 = "1.4.0"
+navigation3Ui = "1.0.0"
+
+navigationCommonAndroid = "2.9.6"
+orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.0"
 
 [libraries]
+
 room-runtime = { module = "androidx.room:room-runtime", version = "2.8.3" }
 room-ktx     = { module = "androidx.room:room-ktx",     version = "2.8.3" }
 room-compiler= { module = "androidx.room:room-compiler",version = "2.8.3" }
@@ -20,9 +30,18 @@ compose-material3  = { module = "androidx.compose.material3:material3" }
 
 activity-compose   = { module = "androidx.activity:activity-compose", version = "1.11.0" }
 core-ktx           = { module = "androidx.core:core-ktx", version = "1.17.0" }
+foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3Runtime" }
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3Ui" }
+
+androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
+org-jetbrains-kotlin-plugin-serialization-gradle-plugin = { group = "org.jetbrains.kotlin.plugin.serialization", name = "org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "orgJetbrainsKotlinPluginSerializationGradlePlugin" }
 
 [plugins]
 androidApplication = { id = "com.android.application",         version.ref = "agp" }
 kotlinAndroid      = { id = "org.jetbrains.kotlin.android",    version.ref = "kotlin" }
 ksp                = { id = "com.google.devtools.ksp",         version.ref = "ksp" }
 composeCompiler    = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.2.0" }

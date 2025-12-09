@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.ksp)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
+
 }
 
 android {
@@ -28,6 +30,9 @@ android {
             )
         }
     }
+    buildFeatures {
+        compose = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -41,6 +46,17 @@ dependencies {
     // ROOM
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.foundation.layout)
+    implementation(libs.navigation3.runtime)
+    implementation(libs.navigation3.ui)
+    implementation(libs.material.icons.extended)
+    implementation(libs.material3)
+    implementation(libs.androidx.navigation.common.android)
+    implementation(libs.org.jetbrains.kotlin.plugin.serialization.gradle.plugin)
+
+
+
+
     ksp(libs.room.compiler)
 
     // Compose BOM
@@ -58,4 +74,5 @@ dependencies {
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.coroutines.android)
+
 }
