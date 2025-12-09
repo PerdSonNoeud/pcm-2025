@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 
 
@@ -176,6 +177,7 @@ fun Greeting(
             var showQuizChoice by remember { mutableStateOf(false) }
             val backStack = LocalNavBackStack.current
 
+
             Button(
                     onClick = { showQuizChoice=true },
                     modifier = Modifier
@@ -247,35 +249,93 @@ fun howquizchoice(
         AlertDialog(
             onDismissRequest = { onDismiss() },
             containerColor = Color(0xFFFFA500),
+
             title = {
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Quelle quiz?", fontSize = 20.sp,fontFamily = Pokemon_Police)
+                    Text(
+                        "Quelle quiz ?",
+                        fontSize = 20.sp,
+                        fontFamily = Pokemon_Police
+                    )
                 }
             },
+
             text = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .fillMaxHeight(0.3f)
-                        .padding(8.dp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
+                    // PREMIÈRE LIGNE
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        OptionBox("Shadow","shadow")
+                        OptionBox("Pokedex","pokedex")
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // DEUXIÈME LIGNE
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        OptionBox("Stat","stat")
+                        OptionBox("Cris","cris")
+                    }
                 }
             },
-            confirmButton = {
-                Button(onClick = { onDismiss() }) {
-                    Text("Oui")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { onDismiss() }) {
-                    Text("Non")
-                }
-            }
+
+            confirmButton = {},
+            dismissButton = {}
         )
+    }
+}
+
+@Composable
+fun OptionBox(label: String,image_type : String) {
+    val viewModel: HomescreenViewModel = viewModel()
+    val images = mapOf(
+        "shadow" to viewModel.shadow,
+        "pokedex" to viewModel.pokedex,
+        "stat" to viewModel.stat,
+        "cris" to viewModel.cris
+    )
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .padding(4.dp)
+            .background(Color(0xFFFFA500), RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            images.get(image_type)?.let {
+                Image(
+                    painter = painterResource(id = it),
+                    contentDescription = "Option",
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+
+            // Bouton en bas
+            Button(
+                onClick = { /* action */ },
+                modifier = Modifier.fillMaxWidth().padding(2.dp)
+            ) {
+                Text(label)
+            }
+        }
     }
 }
 
