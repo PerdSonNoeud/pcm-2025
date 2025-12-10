@@ -9,7 +9,10 @@ data class SettingsEntity(
     @PrimaryKey val id: Int = 0,
     val musicVolume: Float = 0.5f,
     val soundVolume: Float = 0.5f,
-    val difficulty: Difficulty = Difficulty.MEDIUM
+    val difficulty: Difficulty = Difficulty.MEDIUM,
+    val maxHearts: Int = 5,
+    var currentHearts: Int = 5,
+    var lastPlayTime: Long = 0L
 )
 
 enum class Difficulty { EASY, MEDIUM, HARD }

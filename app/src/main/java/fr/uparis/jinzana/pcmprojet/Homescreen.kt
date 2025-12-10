@@ -52,6 +52,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 
 
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.delay
 
 
 val Pokemon_Police = FontFamily(
@@ -84,6 +86,17 @@ fun Greeting(
     ) {
         val scope=this
         val isLandscape = maxWidth > maxHeight
+        val settingsViewModel: SettingsViewModel = viewModel(
+            factory = SettingsViewModelFactory(LocalContext.current)
+        )
+
+
+        val settings by settingsViewModel.settings.collectAsState()
+
+
+
+
+
 
 
 
@@ -169,6 +182,35 @@ fun Greeting(
             modifier = Modifier.size(60.dp)
         )
     }
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = if (isLandscape) Arrangement.Start else Arrangement.End,
+            verticalAlignment = Alignment.Top
+        ) {
+            // State qui se met à jour chaque seconde
+            var secondsLeft by remember { mutableStateOf(
+                (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+            ) }
+
+            // Coroutine qui met à jour secondsLeft toutes les secondes
+            LaunchedEffect(Unit) {
+                while (true) {
+                    secondsLeft = (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+                    delay(1000)
+                }
+            }
+                Text(
+                    text = "Cœurs: ${settings.currentHearts}/${settings.maxHearts}",
+                    fontSize = 24.sp
+                )
+                Text(
+                    text = ": ${secondsLeft}s",
+                    fontSize = 16.sp
+                )
+
+
+        }
+
         }
 
 
@@ -177,6 +219,12 @@ fun Greeting(
 
         @Composable
         fun ContentCard(isLandscape: Boolean){
+            val settingsViewModel: SettingsViewModel = viewModel(
+                factory = SettingsViewModelFactory(LocalContext.current)
+            )
+
+
+            val settings by settingsViewModel.settings.collectAsState()
             var showQuizChoice by remember { mutableStateOf(false) }
             val backStack = LocalNavBackStack.current
 
@@ -224,12 +272,12 @@ fun Greeting(
                 }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
-                onClick = { /* action 2 */ },
+                onClick = { if (settings.currentHearts>0)  settingsViewModel.updateCurrentHearts(settings.currentHearts-1) },
                 modifier = Modifier
                     .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
                     .height(35.dp)
             ) {
-                Text("Credit")
+                Text("--Coeur?")
             }
             if(isLandscape){
                 howquizchoice(
@@ -295,7 +343,7 @@ fun howquizchoice(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-               
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly

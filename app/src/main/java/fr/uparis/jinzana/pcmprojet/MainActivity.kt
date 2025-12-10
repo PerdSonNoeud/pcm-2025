@@ -16,8 +16,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
        // enableEdgeToEdge()
+
         setContent {
             PCMProjetTheme {
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
                     AppNavigation(innerPadding)
@@ -26,6 +28,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 
 

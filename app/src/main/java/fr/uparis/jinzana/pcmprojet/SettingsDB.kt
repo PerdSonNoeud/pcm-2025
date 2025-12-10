@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import android.content.Context
 import kotlin.jvm.java
 
-@Database(entities = [SettingsEntity::class], version = 1)
+@Database(entities = [SettingsEntity::class], version = 2)
 abstract class SettingsDB : RoomDatabase() {
     abstract fun settingsDao(): SettingsDao
 
