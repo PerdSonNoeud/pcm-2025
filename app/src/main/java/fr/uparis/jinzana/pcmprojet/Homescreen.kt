@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,13 +50,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.runtime.collectAsState
 
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
-
-
+import androidx.compose.ui.window.Dialog
 
 
 val Pokemon_Police = FontFamily(
@@ -228,11 +231,22 @@ fun Greeting(
             ) {
                 Text("Credit")
             }
+            if(isLandscape){
+                howquizchoice(
+                    isvisible = showQuizChoice,
+                    onDismiss = { showQuizChoice = false },
+                    true
+                )
 
-            howquizchoice(
-                isvisible = showQuizChoice,
-                onDismiss = { showQuizChoice = false } // <-- Ici tu la fermes
-            )
+            }else{
+                howquizchoice(
+                    isvisible = showQuizChoice,
+                    onDismiss = { showQuizChoice = false },
+                    false
+                )
+
+            }
+
 
 
 
@@ -244,33 +258,44 @@ fun Greeting(
 fun howquizchoice(
     isvisible: Boolean,
     onDismiss: () -> Unit,
+    isLandscape: Boolean
+
 ) {
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(LocalContext.current)
+    )
+
+
+    val settings by settingsViewModel.settings.collectAsState()
+
+    val sliderColor = when (settings.difficulty) {
+        Difficulty.EASY -> Color.Green
+        Difficulty.MEDIUM -> Color.Yellow
+        Difficulty.HARD -> Color.Red
+    }
     if (isvisible) {
-        AlertDialog(
-            onDismissRequest = { onDismiss() },
-            containerColor = Color(0xFFFFA500),
-
-            title = {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Quelle quiz ?",
-                        fontSize = 20.sp,
-                        fontFamily = Pokemon_Police
-                    )
-                }
-            },
-
-            text = {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFFFA500), shape = RoundedCornerShape(24.dp))
+                    .padding(16.dp)
+            ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    // PREMIÈRE LIGNE
+                    Text(
+                        text = "Quelle quiz ?",
+                        fontSize = 20.sp,
+                        fontFamily = Pokemon_Police,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+               
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -281,7 +306,6 @@ fun howquizchoice(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // DEUXIÈME LIGNE
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -289,12 +313,59 @@ fun howquizchoice(
                         OptionBox("Stat","stat")
                         OptionBox("Cris","cris")
                     }
-                }
-            },
 
-            confirmButton = {},
-            dismissButton = {}
-        )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // DIFFICULTÉ
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Difficulté : ",
+                            fontSize = 18.sp,
+                            fontFamily = Pokemon_Police
+                        )
+                        Text(
+                            text = "${settings.difficulty}",
+                            fontSize = 18.sp,
+                            fontFamily = Pokemon_Police,
+                            color = sliderColor
+                        )
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    var sliderValue by remember(settings.difficulty) {
+                        mutableStateOf(
+                            when (settings.difficulty) {
+                                Difficulty.EASY -> 0f
+                                Difficulty.MEDIUM -> 1f
+                                Difficulty.HARD -> 2f
+                            }
+                        )
+                    }
+
+                    Slider(
+                        value = sliderValue,
+                        onValueChange = { value ->
+                            sliderValue = value
+                            val difficulty = when (value) {
+                                in 0f..0.5f -> Difficulty.EASY
+                                in 0.5f..1.5f -> Difficulty.MEDIUM
+                                else -> Difficulty.HARD
+                            }
+                            settingsViewModel.updateDifficulty(difficulty)
+                        },
+                        valueRange = 0f..2f,
+                        steps = 1,
+                        colors = SliderDefaults.colors(
+                            thumbColor = sliderColor,
+                            activeTrackColor = sliderColor,
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
