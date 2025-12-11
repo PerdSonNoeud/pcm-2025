@@ -65,6 +65,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
+import androidx.core.content.edit
 
 
 val Pokemon_Police = FontFamily(
@@ -76,9 +77,8 @@ val Pokemon_Police = FontFamily(
 fun Greeting(
     viewModel: HomescreenViewModel = viewModel(),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-    context: Context = LocalContext.current,
 
-)
+    )
  {
 
 
@@ -140,13 +140,13 @@ fun Greeting(
             Card(
                 modifier = if (isLandscape) {
                     Modifier
-                        .fillMaxWidth()   // 60% de la largeur en paysage
-                        .fillMaxHeight()      // toute la hauteur
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                         .padding(16.dp)
                 } else {
                     Modifier
-                        .fillMaxWidth()       // toute la largeur en portrait
-                        .fillMaxHeight(0.6f)  // 60% de la hauteur
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.6f)
                         .padding(16.dp)
                 }
             ) {
@@ -168,9 +168,9 @@ fun Greeting(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color(0xFFFF8C00))
-                            .padding(20.dp), // espace intérieur
-                        verticalArrangement = Arrangement.Center, // centre verticalement
-                        horizontalAlignment = Alignment.CenterHorizontally // centre horizontalement
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         ContentCard(false)
 
@@ -201,14 +201,13 @@ fun Greeting(
             horizontalArrangement = if (isLandscape) Arrangement.Start else Arrangement.End,
             verticalAlignment = Alignment.Top
         ) {
-            // State qui se met à jour chaque seconde
+
             var secondsLeft by remember {
                 mutableIntStateOf(
                     (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
                 )
             }
 
-            // Coroutine qui met à jour secondsLeft toutes les secondes
             LaunchedEffect(Unit) {
                 while (true) {
                     secondsLeft = (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
@@ -248,6 +247,7 @@ fun Greeting(
 
         @Composable
         fun ContentCard(isLandscape: Boolean){
+            val context = LocalContext.current
             val settingsViewModel: SettingsViewModel = viewModel(
                 factory = SettingsViewModelFactory(LocalContext.current)
             )
@@ -294,20 +294,32 @@ fun Greeting(
                 Button(
                     onClick = {   backStack.add(AuteursScreen)  },
                     modifier = Modifier
-                        .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
+                        .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
                         .height(35.dp)
                 ) {
                     Text("Score")
                 }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
-                onClick = { if (settings.currentHearts>0 && !settings.premium)  settingsViewModel.updateCurrentHearts(settings.currentHearts-1) },
+                onClick = {
+                    if (settings.currentHearts > 0 && !settings.premium) {
+                        val newHeartCount = settings.currentHearts - 1
+
+
+                        settingsViewModel.updateNotif(true,newHeartCount)
+
+
+
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
+                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
                     .height(35.dp)
             ) {
                 Text("--Coeur?")
             }
+
+
             if(isLandscape){
                 howquizchoice(
                     isvisible = showQuizChoice,

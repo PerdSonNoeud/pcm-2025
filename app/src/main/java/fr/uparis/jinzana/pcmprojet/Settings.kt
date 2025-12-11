@@ -13,7 +13,9 @@ data class SettingsEntity(
     val maxHearts: Int = 5,
     var currentHearts: Int = 5,
     var premium: Boolean = false,
-    var lastPlayTime: Long = 0L
+    var lastPlayTime: Long = 0L,
+    var notifIsActive: Boolean = true
+
 )
 
 enum class Difficulty { EASY, MEDIUM, HARD }

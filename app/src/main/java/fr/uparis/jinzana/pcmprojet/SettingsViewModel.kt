@@ -2,6 +2,7 @@ package fr.uparis.jinzana.pcmprojet
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.uparis.jinzana.pcmprojet.HeartRelaod.HEART_RECHARGE_TIME
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,7 +13,7 @@ class SettingsViewModel(private val dao: SettingsDao) : ViewModel() {
 
     private val _settings = MutableStateFlow(SettingsEntity())
     val settings: StateFlow<SettingsEntity> = _settings
-    private val HEART_RECHARGE_TIME = 10_000L//300_000L//5 min
+
 
     init {
 
@@ -52,6 +53,13 @@ class SettingsViewModel(private val dao: SettingsDao) : ViewModel() {
     fun updatePremium(newValue: Boolean) {
         viewModelScope.launch {
             val updated = _settings.value.copy(premium = newValue)
+            dao.insertSettings(updated)
+            _settings.value = updated
+        }
+    }
+    fun updateNotif(newValue: Boolean,heart :Int) {
+        viewModelScope.launch {
+            val updated = _settings.value.copy(notifIsActive = newValue,currentHearts = heart)
             dao.insertSettings(updated)
             _settings.value = updated
         }
