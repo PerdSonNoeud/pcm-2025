@@ -12,7 +12,7 @@ class SettingsViewModel(private val dao: SettingsDao) : ViewModel() {
 
     private val _settings = MutableStateFlow(SettingsEntity())
     val settings: StateFlow<SettingsEntity> = _settings
-    private val HEART_RECHARGE_TIME = 10_000L
+    private val HEART_RECHARGE_TIME = 10_000L//300_000L//5 min
 
     init {
 
@@ -49,6 +49,14 @@ class SettingsViewModel(private val dao: SettingsDao) : ViewModel() {
             _settings.value = updated
         }
     }
+    fun updatePremium(newValue: Boolean) {
+        viewModelScope.launch {
+            val updated = _settings.value.copy(premium = newValue)
+            dao.insertSettings(updated)
+            _settings.value = updated
+        }
+    }
+
 
     fun updateSoundVolume(volume: Float) {
         viewModelScope.launch {

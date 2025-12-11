@@ -12,6 +12,7 @@ data class SettingsEntity(
     val difficulty: Difficulty = Difficulty.MEDIUM,
     val maxHearts: Int = 5,
     var currentHearts: Int = 5,
+    var premium: Boolean = false,
     var lastPlayTime: Long = 0L
 )
 

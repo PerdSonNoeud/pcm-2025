@@ -7,6 +7,7 @@ import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,8 +53,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 
 
 import androidx.compose.ui.text.font.Font
@@ -67,6 +71,7 @@ val Pokemon_Police = FontFamily(
     Font(R.font.pokemonsolid, FontWeight.Bold)
 )
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun Greeting(
     viewModel: HomescreenViewModel = viewModel(),
@@ -85,6 +90,7 @@ fun Greeting(
             .background(Color(0xFFCC5500))
     ) {
         val scope=this
+        var openSettings by remember { mutableStateOf(false) }
         val isLandscape = maxWidth > maxHeight
         val settingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(LocalContext.current)
@@ -92,6 +98,12 @@ fun Greeting(
 
 
         val settings by settingsViewModel.settings.collectAsState()
+        if (openSettings) {
+            SettingsDialog(
+                settingsViewModel = settingsViewModel,
+                onDismiss = { openSettings = false }
+            )
+        }
 
 
 
@@ -180,17 +192,21 @@ fun Greeting(
             painter = painterResource(id = viewModel.option),
             contentDescription = "Option",
             modifier = Modifier.size(60.dp)
+                .clickable { openSettings = true }
         )
     }
+        if(!settings.premium){
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = if (isLandscape) Arrangement.Start else Arrangement.End,
             verticalAlignment = Alignment.Top
         ) {
             // State qui se met à jour chaque seconde
-            var secondsLeft by remember { mutableStateOf(
-                (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
-            ) }
+            var secondsLeft by remember {
+                mutableIntStateOf(
+                    (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+                )
+            }
 
             // Coroutine qui met à jour secondsLeft toutes les secondes
             LaunchedEffect(Unit) {
@@ -199,14 +215,27 @@ fun Greeting(
                     delay(1000)
                 }
             }
+            Image(
+                painter = painterResource(id = viewModel.heart),
+                contentDescription = "Heart",
+                modifier = Modifier.size(30.dp)
+            )
+            Text(
+                text = " : ${settings.currentHearts}/${settings.maxHearts}",
+                fontSize = 24.sp
+            )
+            val minutes = secondsLeft / 60
+            val seconds = secondsLeft % 60
+            val formattedSeconds = seconds.toString().padStart(2, '0')
+
+            if (settings.currentHearts != settings.maxHearts) {
                 Text(
-                    text = "Cœurs: ${settings.currentHearts}/${settings.maxHearts}",
-                    fontSize = 24.sp
-                )
-                Text(
-                    text = ": ${secondsLeft}s",
+                    text = "($minutes:$formattedSeconds)",
                     fontSize = 16.sp
                 )
+            }
+        }
+
 
 
         }
@@ -272,7 +301,7 @@ fun Greeting(
                 }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
-                onClick = { if (settings.currentHearts>0)  settingsViewModel.updateCurrentHearts(settings.currentHearts-1) },
+                onClick = { if (settings.currentHearts>0 && !settings.premium)  settingsViewModel.updateCurrentHearts(settings.currentHearts-1) },
                 modifier = Modifier
                     .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
                     .height(35.dp)
@@ -282,15 +311,13 @@ fun Greeting(
             if(isLandscape){
                 howquizchoice(
                     isvisible = showQuizChoice,
-                    onDismiss = { showQuizChoice = false },
-                    true
+                    onDismiss = { showQuizChoice = false }
                 )
 
             }else{
                 howquizchoice(
                     isvisible = showQuizChoice,
-                    onDismiss = { showQuizChoice = false },
-                    false
+                    onDismiss = { showQuizChoice = false }
                 )
 
             }
@@ -305,8 +332,8 @@ fun Greeting(
 @Composable
 fun howquizchoice(
     isvisible: Boolean,
-    onDismiss: () -> Unit,
-    isLandscape: Boolean
+    onDismiss: () -> Unit
+
 
 ) {
     val settingsViewModel: SettingsViewModel = viewModel(
@@ -384,7 +411,7 @@ fun howquizchoice(
                     Spacer(Modifier.height(8.dp))
 
                     var sliderValue by remember(settings.difficulty) {
-                        mutableStateOf(
+                        androidx.compose.runtime.mutableFloatStateOf(
                             when (settings.difficulty) {
                                 Difficulty.EASY -> 0f
                                 Difficulty.MEDIUM -> 1f
@@ -416,6 +443,91 @@ fun howquizchoice(
         }
     }
 }
+@Composable
+fun SettingsDialog(
+    settingsViewModel: SettingsViewModel,
+    onDismiss: () -> Unit
+) {
+    val settings by settingsViewModel.settings.collectAsState()
+
+    AlertDialog(
+        containerColor = Color(0xFFFFA500),
+        onDismissRequest = onDismiss,
+        title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+             ,
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Paramètres",fontFamily = Pokemon_Police)
+            }
+        },
+
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+
+
+                Text("Musique : ${(settings.musicVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
+                Slider(
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFFD6492F),
+                        activeTrackColor = Color(0xFFD6492F),
+                    ),
+                    value = settings.musicVolume,
+                    onValueChange = { newValue ->
+                        settingsViewModel.updateMusicVolume(newValue)
+                    },
+                    valueRange = 0f..1f
+
+                )
+
+
+                Text("Sons : ${(settings.soundVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
+                Slider(
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFFD6492F),
+                        activeTrackColor = Color(0xFFD6492F),
+                    ),
+                    value = settings.soundVolume,
+                    onValueChange = { newValue ->
+                        settingsViewModel.updateSoundVolume(newValue)
+                    },
+                    valueRange = 0f..1f
+                )
+
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Premium",fontFamily = Pokemon_Police, color = Color.Black)
+                    Switch(
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.Yellow,
+                            uncheckedThumbColor = Color.Gray,
+                            checkedTrackColor = Color(0xFFFFF59D),
+                            uncheckedTrackColor = Color.LightGray
+                        ),
+                        checked = settings.premium,
+                        onCheckedChange = { enabled ->
+                            settingsViewModel.updatePremium(enabled)
+                        }
+                    )
+                }
+            }
+        },
+
+        confirmButton = {
+
+        }
+    )
+}
+
 
 @Composable
 fun OptionBox(label: String,image_type : String) {
@@ -439,7 +551,7 @@ fun OptionBox(label: String,image_type : String) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            images.get(image_type)?.let {
+            images[image_type]?.let {
                 Image(
                     painter = painterResource(id = it),
                     contentDescription = "Option",
