@@ -2,7 +2,6 @@ package fr.uparis.jinzana.pcmprojet
 
 
 import android.annotation.SuppressLint
-import android.content.Context
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -55,6 +54,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -65,7 +65,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
-import androidx.core.content.edit
 
 
 val Pokemon_Police = FontFamily(
@@ -75,6 +74,7 @@ val Pokemon_Police = FontFamily(
 @SuppressLint("DefaultLocale")
 @Composable
 fun Greeting(
+    musicManager: MusicManager,
     viewModel: HomescreenViewModel = viewModel(),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
 
@@ -98,8 +98,18 @@ fun Greeting(
 
 
         val settings by settingsViewModel.settings.collectAsState()
+        DisposableEffect(Unit) {
+            musicManager.playMusic(R.raw.menu, settings.musicVolume)
+
+            onDispose {
+
+                musicManager.stopMusic()
+            }
+        }
+
         if (openSettings) {
             SettingsDialog(
+                musicManager,
                 settingsViewModel = settingsViewModel,
                 onDismiss = { openSettings = false }
             )
@@ -248,6 +258,10 @@ fun Greeting(
         @Composable
         fun ContentCard(isLandscape: Boolean){
             val context = LocalContext.current
+            val soundVM: SoundViewModel =  viewModel(
+                factory = SoundViewModelFactory(LocalContext.current)
+            )
+
             val settingsViewModel: SettingsViewModel = viewModel(
                 factory = SettingsViewModelFactory(LocalContext.current)
             )
@@ -259,7 +273,8 @@ fun Greeting(
 
 
             Button(
-                    onClick = { showQuizChoice=true },
+                    onClick = { showQuizChoice=true
+                        soundVM.play("click", settings.soundVolume) },
                     modifier = Modifier
                         .width(250.dp)
                         .height(60.dp),
@@ -292,7 +307,8 @@ fun Greeting(
                 Spacer(modifier = Modifier.height(30.dp))
 
                 Button(
-                    onClick = {   backStack.add(AuteursScreen)  },
+                    onClick = {   backStack.add(AuteursScreen)
+                        soundVM.play("click", settings.soundVolume)},
                     modifier = Modifier
                         .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
                         .height(35.dp)
@@ -302,6 +318,7 @@ fun Greeting(
             Spacer(modifier = Modifier.height(30.dp))
             Button(
                 onClick = {
+                    soundVM.play("click", settings.soundVolume)
                     if (settings.currentHearts > 0 && !settings.premium) {
                         val newHeartCount = settings.currentHearts - 1
 
@@ -457,6 +474,7 @@ fun howquizchoice(
 }
 @Composable
 fun SettingsDialog(
+    musicManager: MusicManager,
     settingsViewModel: SettingsViewModel,
     onDismiss: () -> Unit
 ) {
@@ -492,6 +510,7 @@ fun SettingsDialog(
                     value = settings.musicVolume,
                     onValueChange = { newValue ->
                         settingsViewModel.updateMusicVolume(newValue)
+                        musicManager.setVolume(newValue)
                     },
                     valueRange = 0f..1f
 
@@ -543,6 +562,16 @@ fun SettingsDialog(
 
 @Composable
 fun OptionBox(label: String,image_type : String) {
+
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(LocalContext.current)
+    )
+    val soundVM: SoundViewModel =  viewModel(
+        factory = SoundViewModelFactory(LocalContext.current)
+    )
+
+
+    val settings by settingsViewModel.settings.collectAsState()
     val viewModel: HomescreenViewModel = viewModel()
     val images = mapOf(
         "shadow" to viewModel.shadow,
@@ -573,7 +602,7 @@ fun OptionBox(label: String,image_type : String) {
 
             // Bouton en bas
             Button(
-                onClick = { /* action */ },
+                onClick = {  soundVM.play("click", settings.soundVolume) },
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
                 Text(label)
