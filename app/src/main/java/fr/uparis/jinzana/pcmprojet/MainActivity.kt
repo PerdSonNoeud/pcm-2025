@@ -64,12 +64,7 @@ class MainActivity : ComponentActivity() {
         musicManager.pauseMusic()
     }
 
-    override fun onResume() {
-        super.onResume()
-        val settings = settingsViewModel.settings.value
-        musicManager.setVolume(settings.musicVolume)
-        if (!musicManager.isPlaying()) musicManager.playMusic(R.raw.menu, settings.musicVolume)
-    }
+  
 
 }
 

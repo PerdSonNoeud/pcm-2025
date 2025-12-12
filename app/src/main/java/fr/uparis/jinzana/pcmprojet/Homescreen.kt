@@ -98,11 +98,12 @@ fun Greeting(
 
 
         val settings by settingsViewModel.settings.collectAsState()
-        DisposableEffect(Unit) {
+
+        DisposableEffect(settings.musicVolume) {
+            musicManager.setVolume(settings.musicVolume)
             musicManager.playMusic(R.raw.menu, settings.musicVolume)
 
             onDispose {
-
                 musicManager.stopMusic()
             }
         }

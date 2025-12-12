@@ -10,7 +10,10 @@ class MusicManager(private val context: Context) {
     private var currentResId: Int? = null
     private var isLooping: Boolean = true
 
-    fun playMusic(@RawRes resId: Int, volume: Float = 0.5f, loop: Boolean = true) {
+    fun playMusic(@RawRes resId: Int, volume: Float , loop: Boolean = true) {
+
+
+
         if (mediaPlayer != null && currentResId == resId) {
             mediaPlayer?.setVolume(volume, volume)
             if (!mediaPlayer!!.isPlaying) mediaPlayer?.start()
