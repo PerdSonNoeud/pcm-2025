@@ -64,6 +64,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
 
 
@@ -99,12 +102,21 @@ fun Greeting(
 
         val settings by settingsViewModel.settings.collectAsState()
 
-        DisposableEffect(settings.musicVolume) {
-            musicManager.setVolume(settings.musicVolume)
-            musicManager.playMusic(R.raw.menu, settings.musicVolume)
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+        DisposableEffect(lifecycleOwner, settings.musicVolume) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    musicManager.playMusic(R.raw.menu, settings.musicVolume)
+                } else if (event == Lifecycle.Event.ON_PAUSE) {
+                    musicManager.pauseMusic()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
 
             onDispose {
-                musicManager.stopMusic()
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                musicManager.pauseMusic()
             }
         }
 
@@ -502,16 +514,23 @@ fun SettingsDialog(
             ) {
 
 
-                Text("Musique : ${(settings.musicVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
+                var newVolume by remember { mutableStateOf(settings.musicVolume) }
+                Text("Musique : ${(newVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
                 Slider(
                     colors = SliderDefaults.colors(
                         thumbColor = Color(0xFFD6492F),
                         activeTrackColor = Color(0xFFD6492F),
                     ),
-                    value = settings.musicVolume,
+                    value =newVolume,
                     onValueChange = { newValue ->
-                        settingsViewModel.updateMusicVolume(newValue)
-                        musicManager.setVolume(newValue)
+                        newVolume = newValue
+
+
+                    },
+                    onValueChangeFinished = {
+
+                        settingsViewModel.updateMusicVolume(newVolume)
+                        musicManager.setVolume(newVolume)
                     },
                     valueRange = 0f..1f
 
