@@ -27,7 +27,7 @@ val LocalNavBackStack = compositionLocalOf<NavBackStack<NavKey>> {
 }
 
 @Composable
-fun AppNavigation(innerPadding: PaddingValues,musicManager: MusicManager,) {
+fun AppNavigation(innerPadding: PaddingValues) {
     val backStack = rememberNavBackStack(HomeScreen)
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory( LocalContext.current)
@@ -39,7 +39,7 @@ fun AppNavigation(innerPadding: PaddingValues,musicManager: MusicManager,) {
         backStack = backStack,
         entryProvider = entryProvider {
             entry<HomeScreen> {
-                Greeting(musicManager,modifier = Modifier.padding(innerPadding) )
+                Greeting(modifier = Modifier.padding(innerPadding) )
             }
             entry<AuteursScreen> {
                 Text("work in progress")

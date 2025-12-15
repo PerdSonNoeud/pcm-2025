@@ -19,9 +19,8 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     lateinit var soundManager: SoundManager
-
-    lateinit var musicManager: MusicManager
-   private val settingsViewModel: SettingsViewModel by viewModels {
+    private val musicViewModel: MusicViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels {
         SettingsViewModelFactory(applicationContext)
     }
 
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
 
         soundManager = SoundManager(this)
-        musicManager = MusicManager(this)
+
 
 
 
@@ -54,14 +53,14 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    AppNavigation(innerPadding,musicManager)
+                    AppNavigation(innerPadding)
                 }
             }
         }
     }
     override fun onPause() {
         super.onPause()
-        musicManager.pauseMusic()
+        musicViewModel.pause()
     }
 
   
