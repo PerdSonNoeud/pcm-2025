@@ -18,7 +18,7 @@ class HeartNotificationWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
 
-        val db = SettingsDB.getInstance(applicationContext)
+        val db = PokeDB.getInstance(applicationContext)
         val dao = db.settingsDao()
 
         var settings = dao.getSettings() ?: return@withContext Result.success()

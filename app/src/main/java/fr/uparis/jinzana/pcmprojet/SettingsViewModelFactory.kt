@@ -8,7 +8,7 @@ import kotlin.jvm.java
 class SettingsViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
-            val dao = SettingsDB.getInstance(context).settingsDao()
+            val dao = PokeDB.getInstance(context).settingsDao()
             @Suppress("UNCHECKED_CAST")
             return SettingsViewModel(dao) as T
         }

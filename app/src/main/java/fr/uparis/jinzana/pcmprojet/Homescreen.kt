@@ -49,7 +49,12 @@ import androidx.compose.ui.graphics.Color
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -62,6 +67,7 @@ import androidx.compose.runtime.mutableIntStateOf
 
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
@@ -177,8 +183,8 @@ fun Greeting(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFFF8C00))  // fond
-                            .padding(20.dp),                // marge intérieure
+                            .background(Color(0xFFFF8C00))
+                            .padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -282,6 +288,8 @@ fun Greeting(
 
             val settings by settingsViewModel.settings.collectAsState()
             var showQuizChoice by remember { mutableStateOf(false) }
+            var showLeaderboard by remember { mutableStateOf(false) }
+            var test by remember { mutableStateOf(false) }
             val backStack = LocalNavBackStack.current
 
 
@@ -320,7 +328,8 @@ fun Greeting(
                 Spacer(modifier = Modifier.height(30.dp))
 
                 Button(
-                    onClick = {   backStack.add(AuteursScreen)
+                    onClick = {
+                        showLeaderboard = true
                         soundVM.play("click", settings.soundVolume)},
                     modifier = Modifier
                         .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
@@ -328,9 +337,25 @@ fun Greeting(
                 ) {
                     Text("Score")
                 }
+            if (showLeaderboard) {
+                val db = PokeDB.getInstance(LocalContext.current)
+                val dao = db.scoreDao()
+                val scoreViewModel: ScoreViewModel = viewModel(
+                    factory = ScoreViewModelFactory(dao)
+                )
+
+
+
+                LeaderboardDialog(
+                    scoreViewModel = scoreViewModel,
+                    quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
+                    onDismiss = { showLeaderboard = false }
+                )
+            }
             Spacer(modifier = Modifier.height(30.dp))
             Button(
                 onClick = {
+                    test=true
                     soundVM.play("click", settings.soundVolume)
                     if (settings.currentHearts > 0 && !settings.premium) {
                         val newHeartCount = settings.currentHearts - 1
@@ -347,6 +372,21 @@ fun Greeting(
                     .height(35.dp)
             ) {
                 Text("--Coeur?")
+            }
+            if (test) {
+                val db = PokeDB.getInstance(LocalContext.current)
+                val dao = db.scoreDao()
+                val scoreViewModel: ScoreViewModel = viewModel(
+                    factory = ScoreViewModelFactory(dao)
+                )
+
+
+
+                AddScoreDialog (
+                    scoreViewModel = scoreViewModel,
+                    quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
+                    onDismiss = { test = false }
+                )
             }
 
 
@@ -629,6 +669,205 @@ fun OptionBox(label: String,image_type : String) {
             }
         }
     }
+}
+
+
+
+@Composable
+fun LeaderboardDialog(
+    scoreViewModel: ScoreViewModel,
+    quizNames: List<String>,
+    onDismiss: () -> Unit
+) {
+    var quizIndex by remember { mutableStateOf(0) }
+    var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
+    var difficultyExpanded by remember { mutableStateOf(false) }
+
+    val currentQuiz = quizNames[quizIndex]
+
+    val scores by scoreViewModel
+        .getTop5Scores(currentQuiz, selectedDifficulty)
+        .collectAsState(initial = emptyList())
+
+    AlertDialog(
+        containerColor = Color(0xFFFFA500),
+        onDismissRequest = onDismiss,
+
+        title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    ,
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Button(
+                    onClick = {
+                        val difficulties = Difficulty.values()
+                        val currentIndex = difficulties.indexOf(selectedDifficulty)
+                        val nextIndex = (currentIndex + 1) % difficulties.size
+                        selectedDifficulty = difficulties[nextIndex]
+                    }
+                ) {
+                    Text(
+                        "${selectedDifficulty.name}",
+                        fontFamily = Pokemon_Police
+                    )
+                }
+
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Classement", fontFamily = Pokemon_Police,modifier = Modifier.padding(top = 8.dp))
+                Text(
+                    currentQuiz,
+                    fontFamily = Pokemon_Police,
+                    color = Color.DarkGray
+                )
+
+            }
+        },
+
+        text = {
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+
+
+
+                /* ---------- Top 5 ---------- */
+                if (scores.isEmpty()) {
+                    Text(
+                        "Aucun score",
+                        fontFamily = Pokemon_Police,
+                        color = Color.Black
+                    )
+                } else {
+                    scores.forEachIndexed { index, score ->
+                        Text(
+                            "${index + 1}. ${score.playerTag} - ${score.score}",
+                            fontFamily = Pokemon_Police,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                /* ---------- Navigation quiz ---------- */
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            quizIndex =
+                                if (quizIndex > 0) quizIndex - 1
+                                else quizNames.lastIndex
+                        }
+                    ) {
+                        Text("<-", fontSize = 20.sp,     fontFamily = Pokemon_Police)
+                    }
+
+                    IconButton(
+                        onClick = {
+                            quizIndex =
+                                if (quizIndex < quizNames.lastIndex) quizIndex + 1
+                                else 0
+                        }
+                    ) {
+                        Text("->", fontSize = 20.sp  ,   fontFamily = Pokemon_Police)
+                    }
+                }
+            }
+        },
+
+        confirmButton = {}
+    )
+}
+
+@Composable
+fun AddScoreDialog(
+    scoreViewModel: ScoreViewModel,
+    quizNames: List<String>,
+    onDismiss: () -> Unit
+) {
+    var quizIndex by remember { mutableStateOf(0) }
+    var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
+    var playerTag by remember { mutableStateOf("") }
+    var scoreValue by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Ajouter un score", fontFamily = Pokemon_Police) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Quiz selector
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    IconButton(onClick = { quizIndex = if (quizIndex > 0) quizIndex - 1 else quizNames.lastIndex }) {
+                        Text("⬅️")
+                    }
+                    Text(quizNames[quizIndex], fontFamily = Pokemon_Police)
+                    IconButton(onClick = { quizIndex = if (quizIndex < quizNames.lastIndex) quizIndex + 1 else 0 }) {
+                        Text("➡️")
+                    }
+                }
+
+                // Difficulty selector
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = { selectedDifficulty = Difficulty.EASY }) {
+                        Text("EASY", fontFamily = Pokemon_Police)
+                    }
+                    Button(onClick = { selectedDifficulty = Difficulty.MEDIUM }) {
+                        Text("MEDIUM", fontFamily = Pokemon_Police)
+                    }
+                    Button(onClick = { selectedDifficulty = Difficulty.HARD }) {
+                        Text("HARD", fontFamily = Pokemon_Police)
+                    }
+                }
+
+                // Player tag
+                OutlinedTextField(
+                    value = playerTag,
+                    onValueChange = { playerTag = it.uppercase().take(3) }, // max 3 lettres
+                    label = { Text("Tag joueur") },
+                    singleLine = true
+                )
+
+                // Score
+                OutlinedTextField(
+                    value = scoreValue,
+                    onValueChange = { scoreValue = it.filter { c -> c.isDigit() } },
+                    label = { Text("Score") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (playerTag.isNotBlank() && scoreValue.isNotBlank()) {
+                    scoreViewModel.addScore(
+                        quizName = quizNames[quizIndex],
+                        difficulty = selectedDifficulty,
+                        playerTag = playerTag,
+                        score = scoreValue.toInt()
+                    )
+                    onDismiss()
+                }
+            }) {
+                Text("Ajouter")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Annuler")
+            }
+        }
+    )
 }
 
 
