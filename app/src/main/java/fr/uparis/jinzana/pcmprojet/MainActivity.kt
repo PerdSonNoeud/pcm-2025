@@ -15,24 +15,12 @@ import fr.uparis.jinzana.pcmprojet.ui.theme.PCMProjetTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       // enableEdgeToEdge()
         setContent {
             PCMProjetTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
                     AppNavigation(innerPadding)
                 }
             }
         }
-    }
-}
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PCMProjetTheme {
-       // Greeting(modifier = Modifier.padding())
     }
 }

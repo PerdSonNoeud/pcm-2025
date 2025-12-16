@@ -1,9 +1,5 @@
 package fr.uparis.jinzana.pcmprojet
 
-
-import android.annotation.SuppressLint
-import android.content.Context
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 
@@ -55,25 +50,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 
-
-
-
-val Pokemon_Police = FontFamily(
-    Font(R.font.pokemonsolid, FontWeight.Bold)
-)
+val Pokemon_Police = FontFamily(Font(R.font.pokemonsolid, FontWeight.Bold))
 
 @Composable
-fun Greeting(
+fun SelectMode(
+    modifier: Modifier = Modifier,
     viewModel: HomescreenViewModel = viewModel(),
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-    context: Context = LocalContext.current,
-
-)
- {
-
-
-
-
+) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -82,22 +65,14 @@ fun Greeting(
         val scope=this
         val isLandscape = maxWidth > maxHeight
 
-
-
-
         Column(
             modifier = modifier.fillMaxSize()
                 .background(Color(0xFFCC5500)),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
-
-
             val imageSize : Dp by remember(scope.maxWidth, scope.maxHeight) {
                 mutableStateOf(if (isLandscape) scope.maxHeight * 0.4f else scope.maxWidth * 0.6f)
             }
-
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = viewModel.pokequiz),
@@ -105,10 +80,6 @@ fun Greeting(
                     modifier = Modifier.size(imageSize)
                 )
             }
-
-
-
-
             Card(
                 modifier = if (isLandscape) {
                     Modifier
@@ -132,9 +103,7 @@ fun Greeting(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         ContentCard(true)
-
                     }
-
                 } else {
                     Column(
                         modifier = Modifier
@@ -145,107 +114,89 @@ fun Greeting(
                         horizontalAlignment = Alignment.CenterHorizontally // centre horizontalement
                     ) {
                         ContentCard(false)
-
                     }
                 }
-
             }
-            //Column
-
-
-
-    }
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = if (isLandscape) Alignment.Top else Alignment.Bottom
-    ) {
-        Image(
-            painter = painterResource(id = viewModel.option),
-            contentDescription = "Option",
-            modifier = Modifier.size(60.dp)
-        )
-    }
         }
-
-
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = if (isLandscape) Alignment.Top else Alignment.Bottom
+        ) {
+            Image(
+                painter = painterResource(id = viewModel.option),
+                contentDescription = "Option",
+                modifier = Modifier.size(60.dp)
+            )
+        }
+    }
 }
 
+@Composable
+fun ContentCard(isLandscape: Boolean){
+    var showQuizChoice by remember { mutableStateOf(false) }
 
-        @Composable
-        fun ContentCard(isLandscape: Boolean){
-            var showQuizChoice by remember { mutableStateOf(false) }
-            val backStack = LocalNavBackStack.current
+    Button(
+        onClick = { showQuizChoice=true },
+        modifier = Modifier
+            .width(250.dp)
+            .height(60.dp),
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFD62929),
+            contentColor = Color.White
+        ),
+        border = BorderStroke(2.dp, Color(0xFFFFD700)),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 10.dp,
+            pressedElevation = 15.dp
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "Quiz",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
 
-            Button(
-                    onClick = { showQuizChoice=true },
-                    modifier = Modifier
-                        .width(250.dp)
-                        .height(60.dp),
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFD62929),
-                        contentColor = Color.White
-                    ),
-                    border = BorderStroke(2.dp, Color(0xFFFFD700)),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 10.dp,
-                        pressedElevation = 15.dp
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Quiz",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+    }
+    Spacer(modifier = Modifier.height(30.dp))
+    Button(
+        onClick = {  },
+        modifier = Modifier
+            .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
+            .height(35.dp)
+    ) {
+        Text("Score")
+    }
+    Spacer(modifier = Modifier.height(30.dp))
+    Button(
+        onClick = { /* action 2 */ },
+        modifier = Modifier
+            .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
+            .height(35.dp)
+    ) {
+        Text("Credit")
+    }
 
-            Column(
-
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-
-            }
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Button(
-                    onClick = {   backStack.add(AuteursScreen)  },
-                    modifier = Modifier
-                        .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
-                        .height(35.dp)
-                ) {
-                    Text("Score")
-                }
-            Spacer(modifier = Modifier.height(30.dp))
-            Button(
-                onClick = { /* action 2 */ },
-                modifier = Modifier
-                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f) // 80% de la largeur parent
-                    .height(35.dp)
-            ) {
-                Text("Credit")
-            }
-
-            howquizchoice(
-                isvisible = showQuizChoice,
-                onDismiss = { showQuizChoice = false } // <-- Ici tu la fermes
-            )
-
-
-
-
-
-        }
+    Howquizchoice(
+        isVisible = showQuizChoice,
+        onDismiss = { showQuizChoice = false } // <-- Ici tu la fermes
+    )
+}
 
 @Composable
-fun howquizchoice(
-    isvisible: Boolean,
+fun Howquizchoice(
+    isVisible: Boolean,
     onDismiss: () -> Unit,
 ) {
-    if (isvisible) {
+    if (isVisible) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
             containerColor = Color(0xFFFFA500),
@@ -262,7 +213,6 @@ fun howquizchoice(
                     )
                 }
             },
-
             text = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -300,12 +250,19 @@ fun howquizchoice(
 
 @Composable
 fun OptionBox(label: String,image_type : String) {
+    val backStack = LocalNavBackStack.current
     val viewModel: HomescreenViewModel = viewModel()
     val images = mapOf(
         "shadow" to viewModel.shadow,
         "pokedex" to viewModel.pokedex,
         "stat" to viewModel.stat,
         "cris" to viewModel.cris
+    )
+    val quizTypes = mapOf(
+        "shadow" to Screen.PokedexScreen,
+        "pokedex" to Screen.PokedexScreen,
+        "stat" to Screen.PokedexScreen,
+        "cris" to Screen.PokedexScreen
     )
     Box(
         modifier = Modifier
@@ -330,7 +287,12 @@ fun OptionBox(label: String,image_type : String) {
 
             // Bouton en bas
             Button(
-                onClick = { /* action */ },
+                onClick = {
+                    val quizScreen = quizTypes[image_type]
+                    if (quizScreen != null) {
+                        backStack.add(quizScreen)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
                 Text(label)
@@ -338,6 +300,7 @@ fun OptionBox(label: String,image_type : String) {
         }
     }
 }
+
 
 
 
