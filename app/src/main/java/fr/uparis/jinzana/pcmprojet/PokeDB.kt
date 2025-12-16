@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @TypeConverters(DifficultyConverter::class)
-@Database(entities = [Pokemon::class,SettingsEntity::class, ScoreEntity::class], version = 1, exportSchema = false)
+@Database(entities = [Pokemon::class,SettingsEntity::class, ScoreEntity::class], version = 2, exportSchema = false)
 abstract class PokeDB: RoomDatabase() {
     abstract fun pokeDao(): PokeDao
 
