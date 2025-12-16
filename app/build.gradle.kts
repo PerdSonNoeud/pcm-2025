@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.org.jetbrains.kotlin.plugin.serialization.gradle.plugin)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.room.compiler)
 
     // Compose BOM
