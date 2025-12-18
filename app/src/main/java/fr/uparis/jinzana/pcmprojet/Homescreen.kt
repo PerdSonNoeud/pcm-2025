@@ -273,7 +273,7 @@ fun Greeting(
 
         @Composable
         fun ContentCard(isLandscape: Boolean){
-            LocalContext.current
+
             val soundVM: SoundViewModel =  viewModel(
                 factory = SoundViewModelFactory(LocalContext.current)
             )
@@ -286,8 +286,6 @@ fun Greeting(
             val settings by settingsViewModel.settings.collectAsState()
             var showQuizChoice by remember { mutableStateOf(false) }
             var showLeaderboard by remember { mutableStateOf(false) }
-
-            LocalNavBackStack.current
 
 
             Button(
@@ -668,10 +666,12 @@ fun LeaderboardDialog(
     quizNames: List<String>,
     onDismiss: () -> Unit
 ) {
+
     var quizIndex by remember { mutableStateOf(0) }
     var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
 
     val currentQuiz = quizNames[quizIndex]
+
 
     val scores by scoreViewModel
         .getTop5Scores(currentQuiz, selectedDifficulty)

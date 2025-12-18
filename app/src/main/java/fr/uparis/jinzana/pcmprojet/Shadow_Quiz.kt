@@ -7,8 +7,10 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.Normalizer
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.sqlite.SQLITE_DATA_NULL
 
@@ -91,6 +96,7 @@ fun Shadow_Quiz(
         factory = SettingsViewModelFactory(LocalContext.current)
     )
     val settings by settingsViewModel.settings.collectAsState()
+
     var score by rememberSaveable { mutableIntStateOf(0) }
     val initialCoeurs = when (settings.difficulty) {
         Difficulty.EASY -> 5
@@ -176,7 +182,7 @@ fun Shadow_Quiz(
         }
 
     if (finDePartie) {
-        End_of_game(score)
+        End_of_game(score,"Shadow")
 
     }
 
@@ -190,15 +196,46 @@ fun Shadow_Quiz(
     ) {
 
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Score : $score")
-            Text("❤️".repeat(coeurs))
 
-            if(settings.difficulty==Difficulty.HARD)
-            Chrono (minutes = 3) { ended ->
+            Text(
+                text = "Score : $score",
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+
+
+            if (hintsCount > 0 && settings.difficulty != Difficulty.HARD && coeurs>=1) {
+                Button(
+                    onClick = {
+                        hintsCount = 0
+                        hintText = ""
+                        suivant()
+                    },
+                    modifier = Modifier
+                        .height(25.dp)
+                        .width(80.dp)
+                        .align(Alignment.Center),
+                    contentPadding = PaddingValues(0.dp) ,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFB00020),
+                    ),
+                ) {
+                    Text("Passer", fontSize = 10.sp, textAlign = TextAlign.Center)
+                }
+            }
+
+
+            Text(
+                text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
+
+
+
+        if(settings.difficulty==Difficulty.HARD  && coeurs >= 1)
+            Chrono (minutes = 3,modifier = Modifier.align(Alignment.Center)) { ended ->
                 finDePartie = ended
             }
         }
@@ -254,11 +291,15 @@ fun Shadow_Quiz(
 
         Spacer(Modifier.height(12.dp))
 
-        Button(onClick = {
-            PokeResult()
-        }) {
-            Text("Valider")
+        Row(){
+            Button(onClick = {
+                PokeResult()
+            }) {
+                Text("Valider")
+            }
+
         }
+
         if (hintText.isNotEmpty()) {
             Text(
                 text = "Le Pokémon commence par : $hintText",
