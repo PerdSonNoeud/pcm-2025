@@ -25,6 +25,9 @@ data object AuteursScreen : Screen {
 }
 
 @Serializable
-data object LivresScreen : Screen {
+data object ShadowQuiz : Screen {
     override val icon = Icons.Filled.Book
 }
+
+
+

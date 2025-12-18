@@ -19,5 +19,5 @@ local.properties
 ./app/src/main/res/values/output.xml
 ./app/src/main/res/cries
 ./app/src/main/res/sprites
-./app/src/main/assets/cries
-./app/src/main/assets/sprites
+./app/src/main/assets/cries/
+./app/src/main/assets/sprites/

@@ -53,8 +53,8 @@ fun AppNavigation(innerPadding: PaddingValues) {
                 Text("work in progress")
             }
 
-            entry<LivresScreen> {
-                Text("Écran Livres")
+            entry<ShadowQuiz> {
+                Shadow_Quiz(modifier = Modifier.padding(innerPadding) )
             }
 
         }

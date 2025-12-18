@@ -68,6 +68,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.delay
 
 
@@ -439,8 +440,8 @@ fun howquizchoice(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        OptionBox("Shadow","shadow")
-                        OptionBox("Pokedex","pokedex")
+                        OptionBox("Shadow","shadow",onDismiss)
+                        OptionBox("Pokedex","pokedex",onDismiss)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -449,8 +450,8 @@ fun howquizchoice(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        OptionBox("Stat","stat")
-                        OptionBox("Cris","cris")
+                        OptionBox("Stat","stat", onDismiss)
+                        OptionBox("Cris","cris",onDismiss)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -602,8 +603,9 @@ fun SettingsDialog(
 }
 
 
+
 @Composable
-fun OptionBox(label: String,image_type : String) {
+fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
 
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(LocalContext.current)
@@ -611,6 +613,7 @@ fun OptionBox(label: String,image_type : String) {
     val soundVM: SoundViewModel =  viewModel(
         factory = SoundViewModelFactory(LocalContext.current)
     )
+    val backStack =  LocalNavBackStack.current
 
 
     val settings by settingsViewModel.settings.collectAsState()
@@ -644,7 +647,11 @@ fun OptionBox(label: String,image_type : String) {
 
             // Bouton en bas
             Button(
-                onClick = {  soundVM.play("click", settings.soundVolume) },
+                onClick = {
+                    soundVM.play("click", settings.soundVolume)
+                    onDismiss()
+
+                    backStack.add(ShadowQuiz)},
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
                 Text(label)
