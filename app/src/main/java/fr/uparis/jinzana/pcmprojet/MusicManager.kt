@@ -29,7 +29,7 @@ class MusicManager(private val context: Context) {
         }
 
         currentResId = resId
-        isLooping = loop
+
     }
 
     fun pauseMusic() {
@@ -37,11 +37,15 @@ class MusicManager(private val context: Context) {
     }
 
     fun stopMusic() {
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
-        mediaPlayer = null
-        currentResId = null
+
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+            mediaPlayer = null
+            currentResId = null
+
     }
+
+
 
     fun setVolume(volume: Float) {
         mediaPlayer?.setVolume(volume, volume)

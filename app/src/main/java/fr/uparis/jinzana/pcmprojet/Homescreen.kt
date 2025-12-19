@@ -2,6 +2,7 @@ package fr.uparis.jinzana.pcmprojet
 
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -107,21 +109,7 @@ fun Greeting(
         val lifecycleOwner = LocalLifecycleOwner.current
 
 
-        DisposableEffect(lifecycleOwner, settings.musicVolume) {
-            val observer = LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    musicManager.play(R.raw.menu, settings.musicVolume)
-                } else if (event == Lifecycle.Event.ON_PAUSE) {
-                    musicManager.pause()
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-                musicManager.pause()
-            }
-        }
+        PageMusic(R.raw.menu, settings.musicVolume)
 
         if (openSettings) {
             SettingsDialog(
@@ -642,14 +630,31 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
                     modifier = Modifier.size(60.dp)
                 )
             }
+           val context =LocalContext.current
 
             // Bouton en bas
             Button(
                 onClick = {
                     soundVM.play("click", settings.soundVolume)
-                    onDismiss()
+                    if (settings.currentHearts > 0 || settings.premium) {
+                        if(!settings.premium){
+                            val newHeartCount = settings.currentHearts - 1
+                            settingsViewModel.updateNotif(true, newHeartCount)
+                        }
+                        onDismiss()
+                        when (label) {
+                            "Shadow" -> backStack.add(ShadowQuiz)
+                        }
 
-                    backStack.add(ShadowQuiz)},
+
+
+
+                    }else{
+                        Toast.makeText(context, "Vous n'avez pas assez de coeur,Vous connaissez la carte bleu?", Toast.LENGTH_SHORT).show()
+                    }
+
+
+                 },
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
                 Text(label)

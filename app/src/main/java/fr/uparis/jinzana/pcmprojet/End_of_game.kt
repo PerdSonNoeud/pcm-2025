@@ -20,9 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.uparis.jinzana.pcmprojet.Pokemon_Police
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,6 +35,10 @@ fun End_of_game(
     score: Int,
     currentQuiz: String
 ) {
+    val Pokemon_Police = FontFamily(
+        Font(R.font.pokemonsolid, FontWeight.Bold)
+    )
+
     val backStack = LocalNavBackStack.current
     val context = LocalContext.current
     var playerTag by rememberSaveable { mutableStateOf("") }
@@ -51,16 +59,16 @@ fun End_of_game(
 
     AlertDialog(
         onDismissRequest = {  },
-        title = { Text("Fin de la partie", fontSize = 24.sp) },
+        title = { Text("Fin de la partie", fontSize = 24.sp,fontFamily = Pokemon_Police) },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Score final : $score")
+                Text("Score final : $score", fontFamily = fr.uparis.jinzana.pcmprojet.Pokemon_Police)
                 Spacer(Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = playerTag,
                     onValueChange = { if (it.length <= 3) playerTag = it.uppercase() },
-                    label = { Text("Initiales (3 lettres)") },
+                    label = { Text("Initiales (3 lettres)")  },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )

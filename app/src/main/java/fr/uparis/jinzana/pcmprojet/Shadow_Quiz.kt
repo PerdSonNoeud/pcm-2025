@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,6 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,6 +52,7 @@ import java.text.Normalizer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.sqlite.SQLITE_DATA_NULL
 
 
@@ -103,6 +109,9 @@ fun Shadow_Quiz(
         Difficulty.MEDIUM -> 3
         Difficulty.HARD -> 1
     }
+    val Pokemon_Police = FontFamily(
+        Font(R.font.pokemonsolid, FontWeight.Bold)
+    )
 
     var coeurs by rememberSaveable { mutableIntStateOf(initialCoeurs) }
 
@@ -122,15 +131,18 @@ fun Shadow_Quiz(
 
     val pokemons by PokeViewMode.allPokemons.collectAsState(initial = emptyList())
 
-    val restants = rememberSaveable { mutableStateListOf<Pokemon>() }
+    val restants = remember { mutableStateListOf<Pokemon>() }
     var pokemonActuelId by rememberSaveable { mutableStateOf<Int?>(null) }
 
 
     val pokemonActuel = pokemons.find { it.id == pokemonActuelId }
 
+        PageMusic(R.raw.shadow, settings.musicVolume)
 
 
-    LaunchedEffect(pokemons) {
+
+
+        LaunchedEffect(pokemons) {
         if (pokemons.isNotEmpty() && restants.isEmpty()) {
             val pokesFiltered = if (settings.difficulty == Difficulty.EASY) {
                 pokemons.take(649)
@@ -189,6 +201,7 @@ fun Shadow_Quiz(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(Color(0xFFE3F2FD))
             .then(
                 if (isLandscape) Modifier else Modifier.padding(16.dp)
             ),
@@ -202,6 +215,7 @@ fun Shadow_Quiz(
 
             Text(
                 text = "Score : $score",
+                fontFamily = Pokemon_Police,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
 
@@ -290,10 +304,15 @@ fun Shadow_Quiz(
         )
 
         Spacer(Modifier.height(12.dp))
+        val soundVM: SoundViewModel =  viewModel(
+            factory = SoundViewModelFactory(LocalContext.current)
+        )
+
 
         Row(){
             Button(onClick = {
                 PokeResult()
+                soundVM.play("click", settings.soundVolume)
             }) {
                 Text("Valider")
             }
