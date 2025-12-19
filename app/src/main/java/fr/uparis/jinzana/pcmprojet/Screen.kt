@@ -29,5 +29,10 @@ data object ShadowQuiz : Screen {
     override val icon = Icons.Filled.Book
 }
 
+@Serializable
+data object CrisQuiz : Screen {
+    override val icon = Icons.Filled.Book
+}
+
 
 

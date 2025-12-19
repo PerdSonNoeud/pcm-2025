@@ -56,6 +56,9 @@ fun AppNavigation(innerPadding: PaddingValues) {
             entry<ShadowQuiz> {
                 Shadow_Quiz(modifier = Modifier.padding(innerPadding) )
             }
+            entry<CrisQuiz> {
+                Cris_Quiz(modifier = Modifier.padding(innerPadding) )
+            }
 
         }
     )

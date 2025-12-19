@@ -56,7 +56,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.sqlite.SQLITE_DATA_NULL
 
 
-fun String.normalizeForQuiz(): String {
+private fun String.normalizeForQuiz(): String {
     return Normalizer.normalize(this, Normalizer.Form.NFD)
         .replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
         .lowercase()
@@ -65,7 +65,7 @@ fun String.normalizeForQuiz(): String {
 
 @Composable
 
-fun ShadowSprite(pokemonId: Int) {
+private fun ShadowSprite(pokemonId: Int) {
     val context = LocalContext.current
 
     val bitmap = remember(pokemonId) {

@@ -644,6 +644,7 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
                         onDismiss()
                         when (label) {
                             "Shadow" -> backStack.add(ShadowQuiz)
+                            "Cris" -> backStack.add(CrisQuiz)
                         }
 
 
