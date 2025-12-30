@@ -2,6 +2,7 @@ package fr.uparis.jinzana.pcmprojet
 
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -65,9 +66,11 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.delay
 
 
@@ -106,21 +109,7 @@ fun Greeting(
         val lifecycleOwner = LocalLifecycleOwner.current
 
 
-        DisposableEffect(lifecycleOwner, settings.musicVolume) {
-            val observer = LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    musicManager.play(R.raw.menu, settings.musicVolume)
-                } else if (event == Lifecycle.Event.ON_PAUSE) {
-                    musicManager.pause()
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-                musicManager.pause()
-            }
-        }
+        PageMusic(R.raw.menu, settings.musicVolume)
 
         if (openSettings) {
             SettingsDialog(
@@ -272,7 +261,7 @@ fun Greeting(
 
         @Composable
         fun ContentCard(isLandscape: Boolean){
-            LocalContext.current
+
             val soundVM: SoundViewModel =  viewModel(
                 factory = SoundViewModelFactory(LocalContext.current)
             )
@@ -285,8 +274,6 @@ fun Greeting(
             val settings by settingsViewModel.settings.collectAsState()
             var showQuizChoice by remember { mutableStateOf(false) }
             var showLeaderboard by remember { mutableStateOf(false) }
-
-            LocalNavBackStack.current
 
 
             Button(
@@ -439,8 +426,8 @@ fun howquizchoice(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        OptionBox("Shadow","shadow")
-                        OptionBox("Pokedex","pokedex")
+                        OptionBox("Shadow","shadow",onDismiss)
+                        OptionBox("Pokedex","pokedex",onDismiss)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -449,8 +436,8 @@ fun howquizchoice(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        OptionBox("Stat","stat")
-                        OptionBox("Cris","cris")
+                        OptionBox("Stat","stat", onDismiss)
+                        OptionBox("Cris","cris",onDismiss)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -602,8 +589,9 @@ fun SettingsDialog(
 }
 
 
+
 @Composable
-fun OptionBox(label: String,image_type : String) {
+fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
 
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(LocalContext.current)
@@ -611,6 +599,7 @@ fun OptionBox(label: String,image_type : String) {
     val soundVM: SoundViewModel =  viewModel(
         factory = SoundViewModelFactory(LocalContext.current)
     )
+    val backStack =  LocalNavBackStack.current
 
 
     val settings by settingsViewModel.settings.collectAsState()
@@ -641,10 +630,32 @@ fun OptionBox(label: String,image_type : String) {
                     modifier = Modifier.size(60.dp)
                 )
             }
+           val context =LocalContext.current
 
             // Bouton en bas
             Button(
-                onClick = {  soundVM.play("click", settings.soundVolume) },
+                onClick = {
+                    soundVM.play("click", settings.soundVolume)
+                    if (settings.currentHearts > 0 || settings.premium) {
+                        if(!settings.premium){
+                            val newHeartCount = settings.currentHearts - 1
+                            settingsViewModel.updateNotif(true, newHeartCount)
+                        }
+                        onDismiss()
+                        when (label) {
+                            "Shadow" -> backStack.add(ShadowQuiz)
+                            "Cris" -> backStack.add(CrisQuiz)
+                        }
+
+
+
+
+                    }else{
+                        Toast.makeText(context, "Vous n'avez pas assez de coeur,Vous connaissez la carte bleu?", Toast.LENGTH_SHORT).show()
+                    }
+
+
+                 },
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
                 Text(label)
@@ -661,10 +672,12 @@ fun LeaderboardDialog(
     quizNames: List<String>,
     onDismiss: () -> Unit
 ) {
+
     var quizIndex by remember { mutableStateOf(0) }
     var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
 
     val currentQuiz = quizNames[quizIndex]
+
 
     val scores by scoreViewModel
         .getTop5Scores(currentQuiz, selectedDifficulty)

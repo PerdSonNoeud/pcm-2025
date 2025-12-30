@@ -35,8 +35,9 @@ if __name__ == "__main__":
     root = ET.Element("resources")
     pokedex_arr = ET.SubElement(root, "string-array", {"name": "pokemons"})
 
-    Path("cries").mkdir(parents=True, exist_ok=True)
-    Path("sprites").mkdir(parents=True, exist_ok=True)
+    Path("../assets/cries").mkdir(parents=True, exist_ok=True)
+    Path("../assets/sprites").mkdir(parents=True, exist_ok=True)
+
 
     n = 0
     for i in range(1, total + 1):
@@ -62,7 +63,7 @@ if __name__ == "__main__":
             cries = requests.get(cries_url, stream=True)
             cries.raise_for_status()  # raise error if download failed
 
-            with open(f"./cries/{i}.ogg", "wb") as f:
+            with open(f"../assets/cries/{i}.ogg", "wb") as f:
                 for chunk in cries.iter_content(chunk_size=8192):
                     f.write(chunk)
         except Exception as e:
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             sprites = requests.get(sprites_url, stream=True)
             sprites.raise_for_status()  # raise error if download failed
 
-            with open(f"./sprites/{i}.png", "wb") as f:
+            with open(f"../assets/sprites/{i}.png", "wb") as f:
                 for chunk in sprites.iter_content(chunk_size=8192):
                     f.write(chunk)
         except Exception as e:
