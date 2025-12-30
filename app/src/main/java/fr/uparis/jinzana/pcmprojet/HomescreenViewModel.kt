@@ -10,5 +10,7 @@ class HomescreenViewModel : ViewModel() {
     val pokedex =R.drawable.pokedex
     val stat= R.drawable.stat
     val cris =R.drawable.cris
+
+    val heart=R.drawable.heart
 }
 

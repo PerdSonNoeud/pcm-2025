@@ -11,6 +11,7 @@ navigation3Ui = "1.0.0"
 
 navigationCommonAndroid = "2.9.6"
 orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.21"
+workRuntimeKtx = "2.11.0"
 
 [libraries]
 room-runtime = { module = "androidx.room:room-runtime", version = "2.8.4" }
@@ -37,6 +38,7 @@ navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", vers
 
 androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
 org-jetbrains-kotlin-plugin-serialization-gradle-plugin = { group = "org.jetbrains.kotlin.plugin.serialization", name = "org.jetbrains.kotlin.plugin.serialization.gradle.plugin", version.ref = "orgJetbrainsKotlinPluginSerializationGradlePlugin" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application",         version.ref = "agp" }

@@ -4,10 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
-@Database(entities = [Pokemon::class], version = 1, exportSchema = false)
+@TypeConverters(DifficultyConverter::class)
+@Database(entities = [Pokemon::class,SettingsEntity::class, ScoreEntity::class], version = 2, exportSchema = false)
 abstract class PokeDB: RoomDatabase() {
     abstract fun pokeDao(): PokeDao
+
+    abstract fun settingsDao(): SettingsDao
+    abstract fun scoreDao(): ScoreDao
     companion object {
         @Volatile
         private var dbInstance: PokeDB? = null
