@@ -1,9 +1,7 @@
 package fr.uparis.jinzana.pcmprojet
 
-
 import android.annotation.SuppressLint
 import android.widget.Toast
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,18 +16,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,17 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -56,21 +46,14 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
-
-
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.delay
 
 
@@ -295,12 +278,12 @@ fun ContentCard(isLandscape: Boolean){
         Text("--Coeur?")
     }
     if(isLandscape){
-        howquizchoice(
+        QuizChoice(
             isvisible = showQuizChoice,
             onDismiss = { showQuizChoice = false }
         )
     }else{
-        howquizchoice(
+        QuizChoice(
             isvisible = showQuizChoice,
             onDismiss = { showQuizChoice = false }
         )
@@ -308,7 +291,7 @@ fun ContentCard(isLandscape: Boolean){
 }
 
 @Composable
-fun howquizchoice(
+fun QuizChoice(
     isvisible: Boolean,
     onDismiss: () -> Unit,
 ) {
@@ -536,10 +519,10 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
         "cris" to viewModel.cris
     )
     val quizTypes = mapOf(
-        "shadow" to Screen.PokedexScreen,
+        "shadow" to Screen.ShadowQuiz,
         "pokedex" to Screen.PokedexScreen,
-        "stat" to Screen.PokedexScreen,
-        "cris" to Screen.PokedexScreen
+        "stat" to Screen.PokedexScreen, // TODO: Make it
+        "cris" to Screen.CrisQuiz
     )
     Box(
         modifier = Modifier
@@ -634,7 +617,7 @@ fun LeaderboardDialog(
                     )
                 ) {
                     Text(
-                        "${selectedDifficulty.name}",
+                        selectedDifficulty.name,
                         fontFamily = Pokemon_Police
                     )
                 }

@@ -29,11 +29,9 @@ val LocalNavBackStack = compositionLocalOf<NavBackStack<NavKey>> {
 @Composable
 fun AppNavigation(
     innerPadding: PaddingValues,
-    model: PokeViewModel = viewModel(),
 ) {
-    model.addAllPokemons() // Populate the database with all Pokémon names
     val backStack = rememberNavBackStack(Screen.HomeScreen)
-val context = LocalContext.current
+    val context = LocalContext.current
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory( context)
     )
@@ -44,24 +42,23 @@ val context = LocalContext.current
         importPokemonsFromCSV(context, db.pokeDao())
     }
     CompositionLocalProvider(LocalNavBackStack provides backStack) {
-    NavDisplay(
-        backStack = backStack,
-        entryProvider = entryProvider {
-            entry<Screen.HomeScreen> {
-                Greeting(modifier = Modifier.padding(innerPadding) )
-            }
-            entry<Screen.PokedexScreen> {
-                PokedexQuiz(modifier = Modifier.padding(innerPadding))
-            }
+        NavDisplay(
+            backStack = backStack,
+            entryProvider = entryProvider {
+                entry<Screen.HomeScreen> {
+                    SelectMode(modifier = Modifier.padding(innerPadding) )
+                }
+                entry<Screen.PokedexScreen> {
+                    PokedexQuiz(modifier = Modifier.padding(innerPadding))
+                }
 
-            entry<Screen.ShadowQuiz> {
-                Shadow_Quiz(modifier = Modifier.padding(innerPadding) )
+                entry<Screen.ShadowQuiz> {
+                    Shadow_Quiz(modifier = Modifier.padding(innerPadding) )
+                }
+                entry<Screen.CrisQuiz> {
+                    Cris_Quiz(modifier = Modifier.padding(innerPadding) )
+                }
             }
-            entry<Screen.CrisQuiz> {
-                Cris_Quiz(modifier = Modifier.padding(innerPadding) )
-            }
-
-        }
-    )
-        }
+        )
+    }
 }
