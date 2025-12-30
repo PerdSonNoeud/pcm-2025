@@ -10,18 +10,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,113 +34,161 @@ import fr.uparis.jinzana.pcmprojet.ui.theme.BgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.NameBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.Selected
-
+import androidx.compose.foundation.lazy.LazyListState
 
 @Composable
 fun PokedexQuiz(
     modifier: Modifier,
     viewModel: PokedexViewModel = viewModel()
 ) {
-    // List of all the pokemons in the DAO
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(LocalContext.current)
+    )
+    val soundVM: SoundViewModel = viewModel(
+        factory = SoundViewModelFactory(LocalContext.current)
+    )
+
+    val settings by settingsViewModel.settings.collectAsState()
+    PageMusic(R.raw.shadow, settings.musicVolume)
+
     val pokemons by viewModel.pokemons.collectAsState(initial = emptyList())
+    var savedPokeIds by rememberSaveable { mutableStateOf(listOf<Int>()) }
+
     val pokeList = remember { mutableStateListOf<Pokemon>() }
-    // Initialize the pokeList only once (avoid repeated adds on recomposition)
+    var rd by remember(pokemons) {
+        mutableStateOf(
+            if (pokemons.isNotEmpty())
+                pokemons[kotlin.random.Random.nextInt(pokemons.size)]
+            else
+                null
+        )
+    }
     if (pokemons.isNotEmpty() && pokeList.isEmpty()) {
-        pokeList.add(pokemons[kotlin.random.Random.nextInt(pokemons.size)])
-        pokeList.add(pokemons[kotlin.random.Random.nextInt(pokemons.size)])
+        if (savedPokeIds.isNotEmpty()) {
+            // reconstruct the pokeList using saved ids (ignore ids not found)
+            savedPokeIds.forEach { id ->
+                pokemons.find { it.id == id }?.let { pokeList.add(it) }
+            }
+            // if reconstruction failed (e.g. DB changed) ensure at least one random item
+            if (pokeList.isEmpty()) {
+                rd = newRandomPokemon(pokemons, pokeList)
+                pokeList.add(0, rd!!)
+                pokeList.add(pokemons[kotlin.random.Random.nextInt(pokemons.size)])
+            }
+        } else {
+            rd = newRandomPokemon(pokemons, pokeList)
+            pokeList.add(0, rd!!)
+            pokeList.add(pokemons[kotlin.random.Random.nextInt(pokemons.size)])
+        }
     }
 
-    // --- added: tracked sorted state, initialize from current pokeList ---
-    val isPokeListSorted = remember {
-        mutableStateOf(pokeList.zipWithNext().all { (a, b) -> a.id <= b.id })
-    }
-
-    val listState = rememberLazyListState()
+    val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
     val dragDropState = rememberDragDropListState(
         listState = listState,
         onMove = { from, to ->
             pokeList.add(to, pokeList.removeAt(from))
+            // persist new ordering immediately
+            savedPokeIds = pokeList.map { it.id }
         }
     )
 
-    Column(
-        modifier = modifier
-            .background(Secondary)
-    ) {
-        Text(
-            text = "Pokedex Quiz",
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(8.dp)
-                .background(IdBgColor)
-                .fillMaxWidth()
-        )
+    var score by rememberSaveable { mutableIntStateOf(0) }
+    val initialCoeurs = when (settings.difficulty) {
+        Difficulty.EASY -> 5
+        Difficulty.MEDIUM -> 3
+        Difficulty.HARD -> 1
+    }
+    var coeurs by rememberSaveable { mutableIntStateOf(initialCoeurs) }
+    var finDePartie by rememberSaveable { mutableStateOf(false) }
 
-        // --- added: UI indicator for whether the list is sorted ---
-        Text(
-            text = "Sorted: ${if (isPokeListSorted.value) "Yes" else "No"}",
-            modifier = Modifier
-                .padding(start = 8.dp, bottom = 4.dp)
-        )
-
-        // list of pokemons from DB
-        LazyColumn(
-            // pass the list state so layoutInfo.visibleItemsInfo is correct
-            state = listState,
-            modifier = Modifier
-                .padding(8.dp)
-                .background(BgColor)
-                .fillMaxHeight()
-                .pointerInput(Unit) {
-                    detectDragGesturesAfterLongPress (
-                        // only attempt to start a drag when touching index 0
-                        onDragStart = { dragDropState.onDragStart(it, 0) },
-                        onDragEnd = {
-                            // only finalize if a drag was actually active
-                            if (dragDropState.draggedIndex != null) {
-                                dragDropState.onDragEnd()
-                                isPokeListSorted.value = pokeList.zipWithNext().all { (a, b) -> a.id <= b.id }
-                                pokeList.add(0, newRandomPokemon(pokemons, pokeList))
-                            }
-                        },
-                        onDragCancel = {
-                            // only cancel if a drag was actually active
-                            if (dragDropState.draggedIndex != null) {
-                                dragDropState.onDragEnd()
-                                isPokeListSorted.value = pokeList.zipWithNext().all { (a, b) -> a.id <= b.id }
-                            }
-                        },
-                        onDrag = { _, dragAmount ->
-                            // only forward drag deltas if a drag was started
-                            if (dragDropState.draggedIndex != null) {
-                                dragDropState.onDrag(dragAmount)
-                            }
-                        }
-                    )
-                }
+    if (finDePartie) {
+        End_of_game(score, "Pokedex")
+    } else {
+        Column(
+            modifier = modifier
+                .background(Secondary)
         ) {
-            if (pokeList.isNotEmpty()) {
-                // use a stable key (item.id) and apply Selected to the dragged item
-                itemsIndexed(items = pokeList, key = { _, item -> item.id }) { i, p ->
-                    // mark item as dragging if its index matches the draggedIndex
-                    val isDragging = dragDropState.draggedIndex == i
-                    val isAnyDragging = dragDropState.draggedIndex != null
+            Text(
+                text = "Pokedex Quiz",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(IdBgColor)
+                    .fillMaxWidth()
+            )
 
-                    Box (
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer(
-                                // use getDraggedOffset() so the visual follows the draggable correctly
-                                translationY = if (isDragging) dragDropState.getDraggedOffset() else 0f,
-                                shadowElevation = if (isDragging) 8f else 0f
-                            )
-                    ) {
-                        when {
-                            // always show the dragged item with Selected (and not hidden)
-                            isDragging -> ShowPokemon(p, Selected, true)
-                            // show the first item with Selected only when nothing is dragging
-                            i == 0 && !isAnyDragging -> ShowPokemon(p, Selected, true)
-                            else -> ShowPokemon(p)
+            // replaced: show score on left and lives on right (like Shadow_Quiz)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Score: $score",
+                    fontFamily = Pokemon_Police,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 10.dp)
+                )
+                Text(
+                    text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 10.dp)
+                )
+            }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(BgColor)
+                    .fillMaxHeight()
+                    .pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress (
+                            onDragStart = { dragDropState.onDragStart(it, 0) },
+                            onDragEnd = {
+                                if (dragDropState.draggedIndex != null) {
+                                    dragDropState.onDragEnd()
+                                    if (pokeList.zipWithNext().all { (a, b) -> a.id <= b.id }) {
+                                        score += 200
+                                        soundVM.play("click", settings.soundVolume)
+                                    } else {
+                                        coeurs -= 1
+                                        if (coeurs <= 0) {
+                                            finDePartie = true
+                                        }
+                                        pokeList.remove(rd)
+                                    }
+                                    if (!finDePartie) {
+                                        rd = newRandomPokemon(pokemons, pokeList)
+                                        pokeList.add(0, rd!!)
+                                    }
+                                    savedPokeIds = pokeList.map { it.id }
+                                }
+                            },
+                            onDrag = { _, dragAmount ->
+                                if (dragDropState.draggedIndex != null) {
+                                    dragDropState.onDrag(dragAmount)
+                                }
+                            }
+                        )
+                    }
+            ) {
+                if (pokeList.isNotEmpty()) {
+                    itemsIndexed(items = pokeList, key = { _, item -> item.id }) { i, p ->
+                        val isDragging = dragDropState.draggedIndex == i
+                        val isAnyDragging = dragDropState.draggedIndex != null
+
+                        Box (
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer(
+                                    translationY = if (isDragging) dragDropState.getDraggedOffset() else 0f,
+                                    shadowElevation = if (isDragging) 8f else 0f
+                                )
+                        ) {
+                            when {
+                                isDragging -> ShowPokemon(p, Selected, true)
+                                i == 0 && !isAnyDragging -> ShowPokemon(p, Selected, true)
+                                else -> ShowPokemon(p)
+                            }
                         }
                     }
                 }
@@ -150,7 +202,6 @@ fun newRandomPokemon(
     filter: List<Pokemon>
 ): Pokemon {
     val filteredPokemons = pokemons.filter { p -> !filter.contains(p) }
-    // avoid out-of-bounds and handle empty filtered list
     if (filteredPokemons.isEmpty()) return pokemons.first()
     return filteredPokemons[kotlin.random.Random.nextInt(filteredPokemons.size)]
 }
@@ -189,13 +240,10 @@ fun ShowPokemon(
 }
 
 fun id(id: Int): String {
-    return if (id < 10) {
-        "000$id"
-    } else if (id < 100) {
-        "00$id"
-    } else if (id < 1000) {
-        "0$id"
-    } else {
-        "$id"
+    return when {
+        id < 10 -> "000$id"
+        id < 100 -> "00$id"
+        id < 1000 -> "0$id"
+        else -> "$id"
     }
 }

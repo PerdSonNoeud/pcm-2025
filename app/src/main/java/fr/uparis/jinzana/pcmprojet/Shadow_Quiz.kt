@@ -111,9 +111,6 @@ fun Shadow_Quiz(
         Difficulty.MEDIUM -> 3
         Difficulty.HARD -> 1
     }
-    val Pokemon_Police = FontFamily(
-        Font(R.font.pokemonsolid, FontWeight.Bold)
-    )
 
     var coeurs by rememberSaveable { mutableIntStateOf(initialCoeurs) }
 
