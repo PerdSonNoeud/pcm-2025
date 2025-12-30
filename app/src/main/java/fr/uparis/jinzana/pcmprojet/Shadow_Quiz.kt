@@ -7,7 +7,8 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -27,7 +32,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,8 +56,6 @@ import java.text.Normalizer
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.sqlite.SQLITE_DATA_NULL
 
 
 private fun String.normalizeForQuiz(): String {
@@ -130,9 +132,17 @@ fun Shadow_Quiz(
         val isLandscape = maxWidth > maxHeight
 
     val pokemons by PokeViewMode.allPokemons.collectAsState(initial = emptyList())
+        val filteredPokemons = remember(input) {
+            if (input.length >= 2) {
+                pokemons.filter { it.name.startsWith(input, ignoreCase = true) }
+            } else {
+                emptyList()
+            }
+        }
 
-    val restants = remember { mutableStateListOf<Pokemon>() }
-    var pokemonActuelId by rememberSaveable { mutableStateOf<Int?>(null) }
+        val restants = rememberSaveable { mutableStateListOf<Pokemon>() }
+
+        var pokemonActuelId by rememberSaveable { mutableStateOf<Int?>(null) }
 
 
     val pokemonActuel = pokemons.find { it.id == pokemonActuelId }
@@ -264,11 +274,13 @@ fun Shadow_Quiz(
         if (!isLandscape) Spacer(Modifier.height(24.dp))
 
 
-
+        Column( horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()){
         OutlinedTextField(
             value = input,
             isError = hintsCount > 0,
-            onValueChange = { input = it },
+            onValueChange = { input = it
+                              },
             label = { Text("Nom du Pokémon") },
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(
@@ -299,9 +311,33 @@ fun Shadow_Quiz(
                         }
                     }
                     input = ""
+
                 }
             )
         )
+            if (filteredPokemons.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .heightIn(max = 200.dp)
+                        .widthIn(max = 275.dp)
+                        .border(1.dp, Color.Gray)
+                ) {
+                    items(filteredPokemons) { pokemon ->
+                        Text(
+                            text = pokemon.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    input = pokemon.name
+                                }
+                                .padding(10.dp)
+                        )
+                    }
+                }
+            }
+
+        }
+
 
         Spacer(Modifier.height(12.dp))
         val soundVM: SoundViewModel =  viewModel(
