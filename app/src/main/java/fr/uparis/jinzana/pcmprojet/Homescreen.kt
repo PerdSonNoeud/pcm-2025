@@ -1,8 +1,6 @@
 package fr.uparis.jinzana.pcmprojet
 
-import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,13 +10,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,37 +43,41 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import fr.uparis.jinzana.pcmprojet.ui.theme.BgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.NameBgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.Primary
+import fr.uparis.jinzana.pcmprojet.ui.theme.Secondary
 import kotlinx.coroutines.delay
 
 
 val Pokemon_Police = FontFamily(Font(R.font.pokemonsolid, FontWeight.Bold))
 
-@SuppressLint("DefaultLocale")
 @Composable
 fun SelectMode(
     modifier: Modifier = Modifier,
-    musicManager: MusicViewModel = viewModel(),
     viewModel: HomescreenViewModel = viewModel(),
 ) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFCC5500))
+            .background(Primary)
     ) {
-        val scope=this
+        val scope = this
         var openSettings by remember { mutableStateOf(false) }
         val isLandscape = maxWidth > maxHeight
         val settingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(LocalContext.current)
         )
         val settings by settingsViewModel.settings.collectAsState()
-        val lifecycleOwner = LocalLifecycleOwner.current
         PageMusic(R.raw.menu, settings.musicVolume)
         if (openSettings) {
             SettingsDialog(
@@ -88,8 +87,11 @@ fun SelectMode(
         }
 
         Column(
-            modifier = modifier.fillMaxSize()
-                .background(Color(0xFFCC5500)),
+            modifier = modifier
+                .fillMaxSize(.95f)
+                .align(Center)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Secondary),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val imageSize : Dp by remember(scope.maxWidth, scope.maxHeight) {
@@ -103,23 +105,15 @@ fun SelectMode(
                 )
             }
             Card(
-                modifier = if (isLandscape) {
-                    Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(16.dp)
-                } else {
-                    Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.6f)
-                        .padding(16.dp)
-                }
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
                 if (isLandscape) {
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFFF8C00))
+                            .background(BgColor)
                             .padding(20.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
@@ -130,7 +124,7 @@ fun SelectMode(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFFF8C00))
+                            .background(BgColor)
                             .padding(20.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -140,57 +134,53 @@ fun SelectMode(
                 }
             }
         }
+        val paddingX = maxWidth * 0.05f
+        val paddingY = maxHeight * 0.05f
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(end = paddingX, top = paddingY),
             horizontalArrangement = Arrangement.End,
-            verticalAlignment = if (isLandscape) Alignment.Top else Alignment.Bottom
+            verticalAlignment = Alignment.Top
         ) {
             Image(
                 painter = painterResource(id = viewModel.option),
                 contentDescription = "Option",
-                modifier = Modifier.size(60.dp)
-            .clickable { openSettings = true }
-        )
-    }
-        if(!settings.premium){
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = if (isLandscape) Arrangement.Start else Arrangement.End,
-            verticalAlignment = Alignment.Top
-        ) {
-
-            var secondsLeft by remember {
-                mutableIntStateOf(
-                    (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+                modifier = Modifier
+                    .size(60.dp)
+                    .clickable { openSettings = true }
+            )
+        }
+        if (!settings.premium) {
+            Row(
+                modifier = modifier.padding(start = paddingX, top = paddingY),
+            ) {
+                var secondsLeft by remember {
+                    mutableIntStateOf(
+                        (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+                    )
+                }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        secondsLeft = (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
+                        delay(1000)
+                    }
+                }
+                Text(
+                    text = "❤ : ${settings.currentHearts}/${settings.maxHearts}",
+                    fontSize = 24.sp
                 )
-            }
+                val minutes = secondsLeft / 60
+                val seconds = secondsLeft % 60
+                val formattedSeconds = seconds.toString().padStart(2, '0')
 
-            LaunchedEffect(Unit) {
-                while (true) {
-                    secondsLeft = (settingsViewModel.timeUntilNextHeart() / 1000).toInt()
-                    delay(1000)
+                if (settings.currentHearts != settings.maxHearts) {
+                    Text(
+                        text = "($minutes:$formattedSeconds)",
+                        fontSize = 16.sp
+                    )
                 }
             }
-            Image(
-                painter = painterResource(id = viewModel.heart),
-                contentDescription = "Heart",
-                modifier = Modifier.size(30.dp)
-            )
-            Text(
-                text = " : ${settings.currentHearts}/${settings.maxHearts}",
-                fontSize = 24.sp
-            )
-            val minutes = secondsLeft / 60
-            val seconds = secondsLeft % 60
-            val formattedSeconds = seconds.toString().padStart(2, '0')
-
-            if (settings.currentHearts != settings.maxHearts) {
-                Text(
-                    text = "($minutes:$formattedSeconds)",
-                    fontSize = 16.sp
-                )
-            }
-        }
         }
     }
 }
@@ -208,74 +198,88 @@ fun ContentCard(isLandscape: Boolean){
     var showQuizChoice by remember { mutableStateOf(false) }
     var showLeaderboard by remember { mutableStateOf(false) }
 
-
-    Button(
-        onClick = { showQuizChoice=true
-        soundVM.play("click", settings.soundVolume) },modifier = Modifier
-            .width(250.dp)
-            .height(60.dp),
-        shape = RectangleShape,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFD62929),
-            contentColor = Color.White
-        ),
-        border = BorderStroke(2.dp, Color(0xFFFFD700)),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 10.dp,
-            pressedElevation = 15.dp
-        ),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "Quiz",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) { }
-        Spacer(modifier = Modifier.height(30.dp))
-
-        Button(
-            onClick = {
-                showLeaderboard = true
-                soundVM.play("click", settings.soundVolume)},
-            modifier = Modifier
-                .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
-                .height(35.dp)
+    Column {
+        Row (
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Score")
-        }
-    if (showLeaderboard) {
-        val db = PokeDB.getInstance(LocalContext.current)
-        val dao = db.scoreDao()
-        val scoreViewModel: ScoreViewModel = viewModel(
-            factory = ScoreViewModelFactory(dao)
-        )
-        LeaderboardDialog(
-            scoreViewModel = scoreViewModel,
-            quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
-            onDismiss = { showLeaderboard = false }
-        )
-    }
-    Spacer(modifier = Modifier.height(30.dp))
-    Button(
-        onClick = {
-
-            soundVM.play("click", settings.soundVolume)
-            if (settings.currentHearts > 0 && !settings.premium) {
-                val newHeartCount = settings.currentHearts - 1
-                settingsViewModel.updateNotif(true,newHeartCount)
+            Button(
+                onClick = {
+                    showQuizChoice = true
+                    soundVM.play("click", settings.soundVolume)
+                },
+                modifier = Modifier
+                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+                    .height(60.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 15.dp
+                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Quiz",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
-        },
-        modifier = Modifier
-            .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
-            .height(35.dp)
-    ) {
-        Text("--Coeur?")
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row {
+            Button(
+                onClick = {
+                    showLeaderboard = true
+                    soundVM.play("click", settings.soundVolume)},
+                modifier = Modifier
+                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
+            ) {
+                Text("Score")
+            }
+            if (showLeaderboard) {
+                val db = PokeDB.getInstance(LocalContext.current)
+                val dao = db.scoreDao()
+                val scoreViewModel: ScoreViewModel = viewModel(
+                    factory = ScoreViewModelFactory(dao)
+                )
+                LeaderboardDialog(
+                    scoreViewModel = scoreViewModel,
+                    quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
+                    onDismiss = { showLeaderboard = false }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row {
+            Button(
+                onClick = {
+                    soundVM.play("click", settings.soundVolume)
+                    if (settings.currentHearts > 0 && !settings.premium) {
+                        val newHeartCount = settings.currentHearts - 1
+                        settingsViewModel.updateNotif(true,newHeartCount)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
+            ) {
+                Text("Debug -1 ❤")
+            }
+        }
     }
     if(isLandscape){
         QuizChoice(
@@ -299,9 +303,7 @@ fun QuizChoice(
         factory = SettingsViewModelFactory(LocalContext.current)
     )
 
-
     val settings by settingsViewModel.settings.collectAsState()
-
     val sliderColor = when (settings.difficulty) {
         Difficulty.EASY -> Color.Green
         Difficulty.MEDIUM -> Color.Yellow
@@ -312,24 +314,21 @@ fun QuizChoice(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFFFA500), shape = RoundedCornerShape(24.dp))
+                    .background(Secondary, shape = RoundedCornerShape(24.dp))
                     .padding(16.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
                     Text(
                         text = "Quelle quiz ?",
                         fontSize = 20.sp,
                         fontFamily = Pokemon_Police,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
-
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -339,7 +338,6 @@ fun QuizChoice(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -349,7 +347,6 @@ fun QuizChoice(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
                     // DIFFICULTÉ
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -370,7 +367,7 @@ fun QuizChoice(
                     Spacer(Modifier.height(8.dp))
 
                     var sliderValue by remember(settings.difficulty) {
-                        androidx.compose.runtime.mutableFloatStateOf(
+                        mutableFloatStateOf(
                             when (settings.difficulty) {
                                 Difficulty.EASY -> 0f
                                 Difficulty.MEDIUM -> 1f
@@ -411,54 +408,47 @@ fun SettingsDialog(
     val settings by settingsViewModel.settings.collectAsState()
 
     AlertDialog(
-        containerColor = Color(0xFFFFA500),
+        containerColor = Secondary,
         onDismissRequest = onDismiss,
         title = {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-             ,
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Center
             ) {
                 Text("Paramètres",fontFamily = Pokemon_Police)
             }
         },
-
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-
-
-                var newVolume by remember { mutableStateOf(settings.musicVolume) }
-                Text("Musique : ${(newVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
+                var newVolume by remember { mutableFloatStateOf(settings.musicVolume) }
+                Text(
+                    text = "Musique : ${(newVolume * 100).toInt()}%",
+                    fontFamily = Pokemon_Police,
+                )
                 Slider(
                     colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFFD6492F),
-                        activeTrackColor = Color(0xFFD6492F),
+                        thumbColor = IdBgColor,
+                        activeTrackColor = IdBgColor,
                     ),
                     value =newVolume,
-                    onValueChange = { newValue ->
-                        newVolume = newValue
-
-
-                    },
+                    onValueChange = { newValue -> newVolume = newValue },
                     onValueChangeFinished = {
-
                         settingsViewModel.updateMusicVolume(newVolume)
                         musicManager.setVolume(newVolume)
                     },
                     valueRange = 0f..1f
-
                 )
-
-
-                Text("Sons : ${(settings.soundVolume * 100).toInt()}%",fontFamily = Pokemon_Police, color = Color.Black)
+                Text(
+                    text = "Sons : ${(settings.soundVolume * 100).toInt()}%",
+                    fontFamily = Pokemon_Police,
+                )
                 Slider(
                     colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFFD6492F),
-                        activeTrackColor = Color(0xFFD6492F),
+                        thumbColor = IdBgColor,
+                        activeTrackColor = IdBgColor,
                     ),
                     value = settings.soundVolume,
                     onValueChange = { newValue ->
@@ -466,19 +456,20 @@ fun SettingsDialog(
                     },
                     valueRange = 0f..1f
                 )
-
-
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Premium",fontFamily = Pokemon_Police, color = Color.Black)
+                    Text(
+                        text = "Premium",
+                        fontFamily = Pokemon_Police,
+                    )
                     Switch(
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.Yellow,
+                            checkedThumbColor = IdBgColor,
+                            checkedTrackColor = BgColor,
                             uncheckedThumbColor = Color.Gray,
-                            checkedTrackColor = Color(0xFFFFF59D),
                             uncheckedTrackColor = Color.LightGray
                         ),
                         checked = settings.premium,
@@ -489,18 +480,16 @@ fun SettingsDialog(
                 }
             }
         },
-
-        confirmButton = {
-
-        }
+        confirmButton = {}
     )
 }
 
-
-
 @Composable
-fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
-
+fun OptionBox(
+    label: String,
+    imageType : String,
+    onDismiss: () -> Unit
+) {
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(LocalContext.current)
     )
@@ -508,7 +497,6 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
         factory = SoundViewModelFactory(LocalContext.current)
     )
     val backStack =  LocalNavBackStack.current
-
 
     val settings by settingsViewModel.settings.collectAsState()
     val viewModel: HomescreenViewModel = viewModel()
@@ -527,9 +515,8 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
     Box(
         modifier = Modifier
             .size(120.dp)
-            .padding(4.dp)
-            .background(Color(0xFFFFA500), RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.Center
+            .padding(4.dp),
+        contentAlignment = Center
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -537,7 +524,7 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            images[image_type]?.let {
+            images[imageType]?.let {
                 Image(
                     painter = painterResource(id = it),
                     contentDescription = "Option",
@@ -556,7 +543,7 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
                             settingsViewModel.updateNotif(true, newHeartCount)
                         }
                         onDismiss()
-                        val quizScreen = quizTypes[image_type]
+                        val quizScreen = quizTypes[imageType]
                         if (quizScreen != null) {
                             backStack.add(quizScreen)
                         }
@@ -564,7 +551,14 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
                         Toast.makeText(context, "Vous n'avez pas assez de coeur, vous connaissez la carte bleu?", Toast.LENGTH_SHORT).show()
                     }
                  },
-                modifier = Modifier.fillMaxWidth().padding(2.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
             ) {
                 Text(label)
             }
@@ -572,43 +566,35 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
     }
 }
 
-
-
 @Composable
 fun LeaderboardDialog(
     scoreViewModel: ScoreViewModel,
     quizNames: List<String>,
     onDismiss: () -> Unit
 ) {
-
-    var quizIndex by remember { mutableStateOf(0) }
+    var quizIndex by remember { mutableIntStateOf(0) }
     var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
-
     val currentQuiz = quizNames[quizIndex]
-
-
     val scores by scoreViewModel
         .getTop5Scores(currentQuiz, selectedDifficulty)
         .collectAsState(initial = emptyList())
 
     AlertDialog(
-        containerColor = Color(0xFFFFA500),
+        containerColor = Secondary,
         onDismissRequest = onDismiss,
-
         title = {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    ,
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.TopEnd
             ) {
                 Button(
                     onClick = {
-                        val difficulties = Difficulty.values()
+                        val difficulties = Difficulty.entries.toTypedArray()
                         val currentIndex = difficulties.indexOf(selectedDifficulty)
                         val nextIndex = (currentIndex + 1) % difficulties.size
                         selectedDifficulty = difficulties[nextIndex]
-                    },  colors = ButtonDefaults.buttonColors(
+                    },
+                    colors = ButtonDefaults.buttonColors(
                         containerColor = when (selectedDifficulty) {
                             Difficulty.EASY -> Color(0xFF006400)
                             Difficulty.MEDIUM -> Color(0xFFCCCC00)
@@ -621,47 +607,44 @@ fun LeaderboardDialog(
                         fontFamily = Pokemon_Police
                     )
                 }
-
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Classement:", fontFamily = Pokemon_Police,modifier = Modifier.padding(top = 8.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    currentQuiz,
+                    text = "Classement :",
                     fontFamily = Pokemon_Police,
-                    color = Color.DarkGray
+                    modifier = Modifier.padding(top = 8.dp),
+            )
+                Text(
+                    text = currentQuiz,
+                    fontFamily = Pokemon_Police,
                 )
-
             }
         },
-
         text = {
-
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 val top5 = (0 until 5).map { index ->
                     scores.getOrNull(index)
                 }
-
                 top5.forEachIndexed { index, score ->
                     if (score != null) {
                         Text(
-                            "${index + 1}. ${score.playerTag} - ${score.score}",
+                            text = "${index + 1}. ${score.playerTag} - ${score.score}",
                             fontFamily = Pokemon_Police,
-                            color = Color.Black
+                            color = NameBgColor
                         )
                     } else {
                         Text(
-                            "${index + 1}. ---",
+                            text = "${index + 1}. ---",
                             fontFamily = Pokemon_Police,
                             color = Color.Gray
                         )
                     }
                 }
-
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -676,7 +659,6 @@ fun LeaderboardDialog(
                     ) {
                         Text("<-", fontSize = 30.sp,     fontFamily = Pokemon_Police)
                     }
-
                     IconButton(
                         onClick = {
                             quizIndex =
@@ -689,19 +671,6 @@ fun LeaderboardDialog(
                 }
             }
         },
-
         confirmButton = {}
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
