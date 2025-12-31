@@ -3,7 +3,6 @@ package fr.uparis.jinzana.pcmprojet
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import importPokemonsFromCSV
 
 val LocalNavBackStack = compositionLocalOf<NavBackStack<NavKey>> {
     error("NavBackStack not provided")
@@ -46,17 +44,19 @@ fun AppNavigation(
             backStack = backStack,
             entryProvider = entryProvider {
                 entry<Screen.HomeScreen> {
-                    SelectMode(modifier = Modifier.padding(innerPadding) )
+                    SelectMode(modifier = Modifier.padding(innerPadding))
                 }
                 entry<Screen.PokedexScreen> {
                     PokedexQuiz(modifier = Modifier.padding(innerPadding))
                 }
-
+                entry<Screen.StatScreen> {
+                    StatQuiz(modifier = Modifier.padding(innerPadding))
+                }
                 entry<Screen.ShadowQuiz> {
-                    Shadow_Quiz(modifier = Modifier.padding(innerPadding) )
+                    Shadow_Quiz(modifier = Modifier.padding(innerPadding))
                 }
                 entry<Screen.CrisQuiz> {
-                    Cris_Quiz(modifier = Modifier.padding(innerPadding) )
+                    Cris_Quiz(modifier = Modifier.padding(innerPadding))
                 }
             }
         )

@@ -521,7 +521,7 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
     val quizTypes = mapOf(
         "shadow" to Screen.ShadowQuiz,
         "pokedex" to Screen.PokedexScreen,
-        "stat" to Screen.PokedexScreen, // TODO: Make it
+        "stat" to Screen.StatScreen,
         "cris" to Screen.CrisQuiz
     )
     Box(

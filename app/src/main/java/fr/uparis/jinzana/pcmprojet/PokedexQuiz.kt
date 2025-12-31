@@ -1,5 +1,6 @@
 package fr.uparis.jinzana.pcmprojet
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
@@ -35,11 +36,11 @@ import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.NameBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.Selected
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun PokedexQuiz(
-    modifier: Modifier,
-    viewModel: PokedexViewModel = viewModel()
+    modifier: Modifier
 ) {
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(LocalContext.current)
@@ -51,7 +52,10 @@ fun PokedexQuiz(
     val settings by settingsViewModel.settings.collectAsState()
     PageMusic(R.raw.shadow, settings.musicVolume)
 
-    val pokemons by viewModel.pokemons.collectAsState(initial = emptyList())
+    val pokeVM: PokeViewModel = viewModel(
+        factory = PokeViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
+    val pokemons by pokeVM.allPokemons.collectAsState(initial = emptyList())
     var savedPokeIds by rememberSaveable { mutableStateOf(listOf<Int>()) }
 
     val pokeList = remember { mutableStateListOf<Pokemon>() }
@@ -111,6 +115,7 @@ fun PokedexQuiz(
             Text(
                 text = "Pokedex Quiz",
                 textAlign = TextAlign.Center,
+                fontSize = 30.sp,
                 modifier = Modifier
                     .padding(8.dp)
                     .background(IdBgColor)
@@ -185,9 +190,9 @@ fun PokedexQuiz(
                                 )
                         ) {
                             when {
-                                isDragging -> ShowPokemon(p, Selected, true)
-                                i == 0 && !isAnyDragging -> ShowPokemon(p, Selected, true)
-                                else -> ShowPokemon(p)
+                                isDragging -> ShowPokemonDex(p, Selected, true)
+                                i == 0 && !isAnyDragging -> ShowPokemonDex(p, Selected, true)
+                                else -> ShowPokemonDex(p)
                             }
                         }
                     }
@@ -207,7 +212,7 @@ fun newRandomPokemon(
 }
 
 @Composable
-fun ShowPokemon(
+fun ShowPokemonDex(
     p: Pokemon,
     bgColor: Color = NameBgColor,
     hide: Boolean = false

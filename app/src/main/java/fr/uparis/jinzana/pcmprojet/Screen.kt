@@ -22,6 +22,11 @@ sealed interface Screen : NavKey {
     }
 
     @Serializable
+    data object StatScreen : Screen {
+        override val icon = Icons.Filled.People
+    }
+
+    @Serializable
     data object ShadowQuiz : Screen {
         override val icon = Icons.Filled.Book
     }
