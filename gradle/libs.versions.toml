@@ -1,8 +1,8 @@
 [versions]
 kotlin = "2.2.21"
-agp = "8.13.1"
+agp = "8.13.2"
 ksp = "2.2.20-2.0.4"
-foundationLayout = "1.9.5"
+foundationLayout = "1.10.0"
 
 navigation3Runtime = "1.0.0"
 materialIconsExtended = "1.7.8"
@@ -10,7 +10,7 @@ material3 = "1.4.0"
 navigation3Ui = "1.0.0"
 
 navigationCommonAndroid = "2.9.6"
-orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.0"
+orgJetbrainsKotlinPluginSerializationGradlePlugin = "2.2.21"
 workRuntimeKtx = "2.11.0"
 
 [libraries]
@@ -45,4 +45,4 @@ androidApplication = { id = "com.android.application",         version.ref = "ag
 kotlinAndroid      = { id = "org.jetbrains.kotlin.android",    version.ref = "kotlin" }
 ksp                = { id = "com.google.devtools.ksp",         version.ref = "ksp" }
 composeCompiler    = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.2.0" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "2.2.21" }

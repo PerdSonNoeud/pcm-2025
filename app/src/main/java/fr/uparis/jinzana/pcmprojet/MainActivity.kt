@@ -23,36 +23,22 @@ class MainActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels {
         SettingsViewModelFactory(applicationContext)
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
        // enableEdgeToEdge()
-
-
         soundManager = SoundManager(this)
-
-
-
-
         val heartWorker = PeriodicWorkRequestBuilder<HeartNotificationWorker>(15, TimeUnit.MINUTES)
             .build()
-
         val testWorker = OneTimeWorkRequestBuilder<HeartNotificationWorker>().build()
         WorkManager.getInstance(this).enqueue(testWorker)
-
-
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "heart_worker",
             androidx.work.ExistingPeriodicWorkPolicy.KEEP,
             heartWorker
         )
-
-
         setContent {
             PCMProjetTheme {
-
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
                     AppNavigation(innerPadding)
                 }
             }
@@ -62,15 +48,7 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         musicViewModel.pause()
     }
-
-  
-
 }
-
-
-
-
-
 
 @Preview(showBackground = true)
 @Composable

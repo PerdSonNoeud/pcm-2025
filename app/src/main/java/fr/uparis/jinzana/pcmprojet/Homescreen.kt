@@ -1,9 +1,7 @@
 package fr.uparis.jinzana.pcmprojet
 
-
 import android.annotation.SuppressLint
 import android.widget.Toast
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,18 +16,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-
 import androidx.compose.material3.Text
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,17 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -56,41 +46,26 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
-
-
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.delay
 
 
-val Pokemon_Police = FontFamily(
-    Font(R.font.pokemonsolid, FontWeight.Bold)
-)
+val Pokemon_Police = FontFamily(Font(R.font.pokemonsolid, FontWeight.Bold))
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun Greeting(
+fun SelectMode(
+    modifier: Modifier = Modifier,
     musicManager: MusicViewModel = viewModel(),
     viewModel: HomescreenViewModel = viewModel(),
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-
-    )
- {
-
-
-
-
+) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -102,44 +77,24 @@ fun Greeting(
         val settingsViewModel: SettingsViewModel = viewModel(
             factory = SettingsViewModelFactory(LocalContext.current)
         )
-
-
         val settings by settingsViewModel.settings.collectAsState()
-
         val lifecycleOwner = LocalLifecycleOwner.current
-
-
         PageMusic(R.raw.menu, settings.musicVolume)
-
         if (openSettings) {
             SettingsDialog(
-
                 settingsViewModel = settingsViewModel,
                 onDismiss = { openSettings = false }
             )
         }
 
-
-
-
-
-
-
-
-
         Column(
             modifier = modifier.fillMaxSize()
                 .background(Color(0xFFCC5500)),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
-
-
             val imageSize : Dp by remember(scope.maxWidth, scope.maxHeight) {
                 mutableStateOf(if (isLandscape) scope.maxHeight * 0.4f else scope.maxWidth * 0.6f)
             }
-
-
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = viewModel.pokequiz),
@@ -147,10 +102,6 @@ fun Greeting(
                     modifier = Modifier.size(imageSize)
                 )
             }
-
-
-
-
             Card(
                 modifier = if (isLandscape) {
                     Modifier
@@ -174,9 +125,7 @@ fun Greeting(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         ContentCard(true)
-
                     }
-
                 } else {
                     Column(
                         modifier = Modifier
@@ -187,26 +136,20 @@ fun Greeting(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         ContentCard(false)
-
                     }
                 }
-
             }
-            //Column
-
-
-
-    }
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = if (isLandscape) Alignment.Top else Alignment.Bottom
-    ) {
-        Image(
-            painter = painterResource(id = viewModel.option),
-            contentDescription = "Option",
-            modifier = Modifier.size(60.dp)
-                .clickable { openSettings = true }
+        }
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = if (isLandscape) Alignment.Top else Alignment.Bottom
+        ) {
+            Image(
+                painter = painterResource(id = viewModel.option),
+                contentDescription = "Option",
+                modifier = Modifier.size(60.dp)
+            .clickable { openSettings = true }
         )
     }
         if(!settings.premium){
@@ -248,144 +191,109 @@ fun Greeting(
                 )
             }
         }
-
-
-
         }
-
-        }
-
-
+    }
 }
 
+@Composable
+fun ContentCard(isLandscape: Boolean){
+    val soundVM: SoundViewModel =  viewModel(
+        factory = SoundViewModelFactory(LocalContext.current)
+    )
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(LocalContext.current)
+    )
 
-        @Composable
-        fun ContentCard(isLandscape: Boolean){
-
-            val soundVM: SoundViewModel =  viewModel(
-                factory = SoundViewModelFactory(LocalContext.current)
-            )
-
-            val settingsViewModel: SettingsViewModel = viewModel(
-                factory = SettingsViewModelFactory(LocalContext.current)
-            )
-
-
-            val settings by settingsViewModel.settings.collectAsState()
-            var showQuizChoice by remember { mutableStateOf(false) }
-            var showLeaderboard by remember { mutableStateOf(false) }
+    val settings by settingsViewModel.settings.collectAsState()
+    var showQuizChoice by remember { mutableStateOf(false) }
+    var showLeaderboard by remember { mutableStateOf(false) }
 
 
-            Button(
-                    onClick = { showQuizChoice=true
-                        soundVM.play("click", settings.soundVolume) },
-                    modifier = Modifier
-                        .width(250.dp)
-                        .height(60.dp),
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFD62929),
-                        contentColor = Color.White
-                    ),
-                    border = BorderStroke(2.dp, Color(0xFFFFD700)),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 10.dp,
-                        pressedElevation = 15.dp
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Quiz",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+    Button(
+        onClick = { showQuizChoice=true
+        soundVM.play("click", settings.soundVolume) },modifier = Modifier
+            .width(250.dp)
+            .height(60.dp),
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFD62929),
+            contentColor = Color.White
+        ),
+        border = BorderStroke(2.dp, Color(0xFFFFD700)),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 10.dp,
+            pressedElevation = 15.dp
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "Quiz",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 
-            Column(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) { }
+        Spacer(modifier = Modifier.height(30.dp))
 
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-
-            }
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Button(
-                    onClick = {
-                        showLeaderboard = true
-                        soundVM.play("click", settings.soundVolume)},
-                    modifier = Modifier
-                        .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
-                        .height(35.dp)
-                ) {
-                    Text("Score")
-                }
-            if (showLeaderboard) {
-                val db = PokeDB.getInstance(LocalContext.current)
-                val dao = db.scoreDao()
-                val scoreViewModel: ScoreViewModel = viewModel(
-                    factory = ScoreViewModelFactory(dao)
-                )
-
-
-
-                LeaderboardDialog(
-                    scoreViewModel = scoreViewModel,
-                    quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
-                    onDismiss = { showLeaderboard = false }
-                )
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-            Button(
-                onClick = {
-
-                    soundVM.play("click", settings.soundVolume)
-                    if (settings.currentHearts > 0 && !settings.premium) {
-                        val newHeartCount = settings.currentHearts - 1
-
-
-                        settingsViewModel.updateNotif(true,newHeartCount)
-
-
-
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
-                    .height(35.dp)
-            ) {
-                Text("--Coeur?")
-            }
-
-
-
-            if(isLandscape){
-                howquizchoice(
-                    isvisible = showQuizChoice,
-                    onDismiss = { showQuizChoice = false }
-                )
-
-            }else{
-                howquizchoice(
-                    isvisible = showQuizChoice,
-                    onDismiss = { showQuizChoice = false }
-                )
-
-            }
-
-
-
-
-
-
+        Button(
+            onClick = {
+                showLeaderboard = true
+                soundVM.play("click", settings.soundVolume)},
+            modifier = Modifier
+                .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+                .height(35.dp)
+        ) {
+            Text("Score")
         }
+    if (showLeaderboard) {
+        val db = PokeDB.getInstance(LocalContext.current)
+        val dao = db.scoreDao()
+        val scoreViewModel: ScoreViewModel = viewModel(
+            factory = ScoreViewModelFactory(dao)
+        )
+        LeaderboardDialog(
+            scoreViewModel = scoreViewModel,
+            quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
+            onDismiss = { showLeaderboard = false }
+        )
+    }
+    Spacer(modifier = Modifier.height(30.dp))
+    Button(
+        onClick = {
+
+            soundVM.play("click", settings.soundVolume)
+            if (settings.currentHearts > 0 && !settings.premium) {
+                val newHeartCount = settings.currentHearts - 1
+                settingsViewModel.updateNotif(true,newHeartCount)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+            .height(35.dp)
+    ) {
+        Text("--Coeur?")
+    }
+    if(isLandscape){
+        QuizChoice(
+            isvisible = showQuizChoice,
+            onDismiss = { showQuizChoice = false }
+        )
+    }else{
+        QuizChoice(
+            isvisible = showQuizChoice,
+            onDismiss = { showQuizChoice = false }
+        )
+    }
+}
 
 @Composable
-fun howquizchoice(
+fun QuizChoice(
     isvisible: Boolean,
-    onDismiss: () -> Unit
-
-
+    onDismiss: () -> Unit,
 ) {
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(LocalContext.current)
@@ -610,6 +518,12 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
         "stat" to viewModel.stat,
         "cris" to viewModel.cris
     )
+    val quizTypes = mapOf(
+        "shadow" to Screen.ShadowQuiz,
+        "pokedex" to Screen.PokedexScreen,
+        "stat" to Screen.StatScreen,
+        "cris" to Screen.CrisQuiz
+    )
     Box(
         modifier = Modifier
             .size(120.dp)
@@ -642,19 +556,13 @@ fun OptionBox(label: String,image_type : String,    onDismiss: () -> Unit) {
                             settingsViewModel.updateNotif(true, newHeartCount)
                         }
                         onDismiss()
-                        when (label) {
-                            "Shadow" -> backStack.add(ShadowQuiz)
-                            "Cris" -> backStack.add(CrisQuiz)
+                        val quizScreen = quizTypes[image_type]
+                        if (quizScreen != null) {
+                            backStack.add(quizScreen)
                         }
-
-
-
-
                     }else{
-                        Toast.makeText(context, "Vous n'avez pas assez de coeur,Vous connaissez la carte bleu?", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Vous n'avez pas assez de coeur, vous connaissez la carte bleu?", Toast.LENGTH_SHORT).show()
                     }
-
-
                  },
                 modifier = Modifier.fillMaxWidth().padding(2.dp)
             ) {
@@ -709,7 +617,7 @@ fun LeaderboardDialog(
                     )
                 ) {
                     Text(
-                        "${selectedDifficulty.name}",
+                        selectedDifficulty.name,
                         fontFamily = Pokemon_Police
                     )
                 }
@@ -785,6 +693,7 @@ fun LeaderboardDialog(
         confirmButton = {}
     )
 }
+
 
 
 
