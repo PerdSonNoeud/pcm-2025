@@ -184,7 +184,7 @@ fun Cris_Quiz(
         if (pokesFiltered.size < 4) return
 
 
-        val chosen = pokemons.random()
+        val chosen = pokesFiltered.random()
         currentPokemonId = chosen.id
 
         val fauxCount = when {
@@ -195,7 +195,7 @@ fun Cris_Quiz(
         }
 
 
-        val others = pokemons
+        val others = pokesFiltered
             .filter { it.id != chosen.id }
             .shuffled()
             .take(fauxCount)
