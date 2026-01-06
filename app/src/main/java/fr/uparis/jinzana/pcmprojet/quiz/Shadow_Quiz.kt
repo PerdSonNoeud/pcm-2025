@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -42,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -62,6 +64,10 @@ import fr.uparis.jinzana.pcmprojet.utils.music.SoundViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModel
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.Pokemon
+import fr.uparis.jinzana.pcmprojet.ui.theme.BgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.Primary
+import fr.uparis.jinzana.pcmprojet.ui.theme.Secondary
 import fr.uparis.jinzana.pcmprojet.utils.Chrono
 import fr.uparis.jinzana.pcmprojet.utils.music.PageMusic
 
@@ -123,7 +129,11 @@ fun Shadow_Quiz(
         factory = PokeViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 
-    BoxWithConstraints {
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Primary)
+    ) {
         val isLandscape = maxWidth > maxHeight
         val pokemons by pokeVM.allPokemons.collectAsState(initial = emptyList())
         val filteredPokemons = remember(input) {
@@ -184,134 +194,162 @@ fun Shadow_Quiz(
 
         if (finDePartie) {
             EndOfGame(score, "Shadow")
-        }
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(Color(0xFFE3F2FD))
-                .then(
-                    if (isLandscape) Modifier else Modifier.padding(16.dp)
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Score : $score",
-                    fontFamily = Pokemon_Police,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
-                if (hintsCount > 0 && settings.difficulty != Difficulty.HARD && coeurs>=1) {
-                    Button(
-                        onClick = {
-                            hintsCount = 0
-                            hintText = ""
-                            suivant()
-                        },
-                        modifier = Modifier
-                            .height(25.dp)
-                            .width(80.dp)
-                            .align(Alignment.Center),
-                        contentPadding = PaddingValues(0.dp) ,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFB00020),
-                        ),
-                    ) {
-                        Text("Passer", fontSize = 10.sp, textAlign = TextAlign.Center)
-                    }
-                }
-                Text(
-                    text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
-                if(settings.difficulty== Difficulty.HARD  && coeurs >= 1)
-                    Chrono(minutes = 3, modifier = Modifier.align(Alignment.Center)) { ended ->
-                        finDePartie = ended
-                    }
-            }
-            if (!isLandscape) Spacer(Modifier.height(24.dp))
-            pokemonActuel?.let { pokemon ->
-                ShadowSprite(pokemon.id)
-            }
-            if (!isLandscape) Spacer(Modifier.height(24.dp))
+        } else {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxSize(.95f)
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Secondary)
+                    .then(
+                        if (isLandscape) Modifier else Modifier.padding(16.dp)
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                OutlinedTextField(
-                    value = input,
-                    isError = hintsCount > 0,
-                    onValueChange = { input = it },
-                    label = { Text("Nom du Pokémon") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            val correctName = pokemonActuel?.name ?: ""
-                            if (input.normalizeForQuiz().equals(correctName.normalizeForQuiz(), ignoreCase = true)) {
-                                score += 400
+                Spacer(modifier = Modifier.padding(10.dp))
+                Text(
+                    text = "Shadow Quiz",
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp,
+                    fontFamily = Pokemon_Police,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Score : $score",
+                        fontFamily = Pokemon_Police,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(top = 10.dp, start = 10.dp)
+                    )
+                    if (hintsCount > 0 && settings.difficulty != Difficulty.HARD && coeurs>=1) {
+                        Button(
+                            onClick = {
                                 hintsCount = 0
                                 hintText = ""
                                 suivant()
-                            } else {
-                                coeurs--
-                                hintsCount = when (hintsCount) {
-                                    0 -> 1
-                                    1 -> 3
-                                    else -> hintsCount
-                                }
-
-                                hintText = if (correctName.length >= hintsCount) {
-                                    correctName.take(hintsCount)
-                                } else correctName
-
-                                if (coeurs <= 0) {
-                                    finDePartie = true
-                                }
-                            }
-                            input = ""
-                        }
-                    )
-                )
-                if (filteredPokemons.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .heightIn(max = 200.dp)
-                            .widthIn(max = 275.dp)
-                            .border(1.dp, Color.Gray)
-                    ) {
-                        items(filteredPokemons) { pokemon ->
-                            Text(
-                                text = pokemon.name,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { input = pokemon.name }
-                                    .padding(10.dp)
-                            )
+                            },
+                            modifier = Modifier
+                                .height(25.dp)
+                                .width(80.dp)
+                                .align(Alignment.Center),
+                            contentPadding = PaddingValues(0.dp) ,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFB00020),
+                            ),
+                        ) {
+                            Text("Passer", fontSize = 10.sp, textAlign = TextAlign.Center)
                         }
                     }
+                    Text(
+                        text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(top = 10.dp, end = 10.dp)
+                    )
+                    if(settings.difficulty== Difficulty.HARD  && coeurs >= 1)
+                        Chrono(minutes = 3, modifier = Modifier.align(Alignment.Center)) { ended ->
+                            finDePartie = ended
+                        }
                 }
-            }
-            Spacer(Modifier.height(12.dp))
-            val soundVM: SoundViewModel =  viewModel(
-                factory = SoundViewModelFactory(LocalContext.current)
-            )
-            Row {
-                Button(onClick = {
-                    pokeResult()
-                    soundVM.play("click", settings.soundVolume)
-                }) {
-                    Text("Valider")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .fillMaxWidth(.8f)
+                        .background(BgColor)
+                ) {
+                    if (!isLandscape) Spacer(Modifier.height(24.dp))
+                    pokemonActuel?.let { pokemon ->
+                        ShadowSprite(pokemon.id)
+                    }
+                    if (!isLandscape) Spacer(Modifier.height(24.dp))
+                    OutlinedTextField(
+                        value = input,
+                        isError = hintsCount > 0,
+                        onValueChange = { input = it },
+                        label = { Text(
+                            text = "Nom du Pokémon",
+                            color = Secondary
+                        ) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                val correctName = pokemonActuel?.name ?: ""
+                                if (input.normalizeForQuiz().equals(correctName.normalizeForQuiz(), ignoreCase = true)) {
+                                    score += 400
+                                    hintsCount = 0
+                                    hintText = ""
+                                    suivant()
+                                } else {
+                                    coeurs--
+                                    hintsCount = when (hintsCount) {
+                                        0 -> 1
+                                        1 -> 3
+                                        else -> hintsCount
+                                    }
+
+                                    hintText = if (correctName.length >= hintsCount) {
+                                        correctName.take(hintsCount)
+                                    } else correctName
+
+                                    if (coeurs <= 0) {
+                                        finDePartie = true
+                                    }
+                                }
+                                input = ""
+                            }
+                        )
+                    )
+                    if (filteredPokemons.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .heightIn(max = 200.dp)
+                                .widthIn(max = 275.dp)
+                                .border(1.dp, Color.Gray)
+                        ) {
+                            items(filteredPokemons) { pokemon ->
+                                Text(
+                                    text = pokemon.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { input = pokemon.name }
+                                        .padding(10.dp)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    val soundVM: SoundViewModel =  viewModel(
+                        factory = SoundViewModelFactory(LocalContext.current)
+                    )
+                    Row {
+                        Button(
+                            onClick = {
+                                pokeResult()
+                                soundVM.play("click", settings.soundVolume)
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = IdBgColor,
+                                contentColor = Color.White
+                            ),
+                        ) {
+                            Text("Valider")
+                        }
+                    }
+                    if (hintText.isNotEmpty()) {
+                        Text(
+                            text = "Le Pokémon commence par : $hintText",
+                            color = Color(0xFFB00020),
+                            fontSize = 9.sp,
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
                 }
-            }
-            if (hintText.isNotEmpty()) {
-                Text(
-                    text = "Le Pokémon commence par : $hintText",
-                    color = Color(0xFFB00020),
-                    fontSize = 9.sp,
-                )
             }
         }
     }

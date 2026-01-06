@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 
@@ -55,6 +57,10 @@ import fr.uparis.jinzana.pcmprojet.database.PokeViewModel
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.Pokemon
 import fr.uparis.jinzana.pcmprojet.Pokemon_Police
+import fr.uparis.jinzana.pcmprojet.ui.theme.BgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
+import fr.uparis.jinzana.pcmprojet.ui.theme.Primary
+import fr.uparis.jinzana.pcmprojet.ui.theme.Secondary
 import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModel
 import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModelFactory
 
@@ -141,7 +147,14 @@ fun Cris_Quiz(
                 PokemonSprite(pokemon.id, size = 100.dp)
             }
             Spacer(Modifier.height(8.dp))
-            Button(onClick = onClick) {
+            Button(
+                onClick = onClick,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
+            ) {
                 Text(if (isShadow) "?" else pokemon.name)
             }
         }
@@ -212,25 +225,37 @@ fun Cris_Quiz(
     if (finDePartie) {
         EndOfGame(score, "Cris")
     } else {
-        BoxWithConstraints {
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Primary)
+        ) {
             val isLandscape = maxWidth > maxHeight
             Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .background(Color(0xFFE3F2FD))
-                    .padding(16.dp),
+                modifier = Modifier
+                    .fillMaxSize(.95f)
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Secondary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.padding(10.dp))
+                Text(
+                    text = "Cris Quiz",
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp,
+                    fontFamily = Pokemon_Police,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Score : $score",
                         fontFamily = Pokemon_Police,
-                        fontSize = if (isLandscape ) 20.sp else 15.sp,
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(top = 10.dp, start = 10.dp)
                     )
                     if (hintsCount > 0 && settings.difficulty != Difficulty.HARD && coeurs >= 1) {
                         Button(
@@ -252,20 +277,32 @@ fun Cris_Quiz(
                     }
                     Text(
                         text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
-                        modifier = Modifier.align(Alignment.CenterEnd)
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(top = 10.dp, end = 10.dp)
                     )
                 }
-                Button(onClick = {
-                    currentPokemon?.let { playCry(context, it.id, settings.soundVolume) }
-                }) {
+                Button(
+                    onClick = {
+                        currentPokemon?.let { playCry(context, it.id, settings.soundVolume) }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = IdBgColor,
+                        contentColor = Color.White
+                    ),
+                ) {
                     Text("Jouer le cri")
                 }
                 Spacer(Modifier.height(24.dp))
-                if (isLandscape) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .fillMaxSize(.8f)
+                        .background(BgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isLandscape) {
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.wrapContentWidth()
@@ -287,27 +324,26 @@ fun Cris_Quiz(
                                 }
                             }
                         }
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(options) { pokemon ->
-                            PokemonOptionItem(
-                                pokemon = pokemon,
-                                score = score,
-                            ) {
-                                if (pokemon.id == currentPokemon?.id) {
-                                    score += 200
-                                    hintsCount = 0
-                                    suivant()
-                                } else {
-                                    coeurs--
-                                    hintsCount++
-                                    if (coeurs <= 0) finDePartie = true
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            items(options) { pokemon ->
+                                PokemonOptionItem(
+                                    pokemon = pokemon,
+                                    score = score,
+                                ) {
+                                    if (pokemon.id == currentPokemon?.id) {
+                                        score += 200
+                                        hintsCount = 0
+                                        suivant()
+                                    } else {
+                                        coeurs--
+                                        hintsCount++
+                                        if (coeurs <= 0) finDePartie = true
+                                    }
                                 }
                             }
                         }

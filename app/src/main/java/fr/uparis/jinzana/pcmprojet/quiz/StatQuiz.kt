@@ -153,6 +153,7 @@ fun StatQuiz(
                     text = "Stat Quiz - $rdStats",
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
+                    fontFamily = Pokemon_Police,
                     modifier = Modifier.fillMaxWidth()
                 )
 
