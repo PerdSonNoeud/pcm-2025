@@ -177,7 +177,7 @@ fun SelectMode(
                     }
                 }
                 Text(
-                    text = "❤ : ${settings.currentHearts}/${settings.maxHearts}",
+                    text = "❤ : ${settings.currentHearts}/${settings.maxHearts} ",
                     fontSize = 24.sp
                 )
                 val minutes = secondsLeft / 60
@@ -207,6 +207,7 @@ fun ContentCard(isLandscape: Boolean){
     val settings by settingsViewModel.settings.collectAsState()
     var showQuizChoice by remember { mutableStateOf(false) }
     var showLeaderboard by remember { mutableStateOf(false) }
+    var showHowToPlay by remember { mutableStateOf(false) }
 
     Column {
         Row (
@@ -265,6 +266,29 @@ fun ContentCard(isLandscape: Boolean){
                     scoreViewModel = scoreViewModel,
                     quizNames = listOf("Shadow", "Pokedex", "Stat","Cris"),
                     onDismiss = { showLeaderboard = false }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row {
+            Button(
+                onClick = {
+                    showHowToPlay = true
+                    soundVM.play("click", settings.soundVolume)},
+                modifier = Modifier
+                    .fillMaxWidth(if (isLandscape) 0.4f else 0.8f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = IdBgColor,
+                    contentColor = Color.White
+                ),
+            ) {
+                Text("Comment jouer ?")
+            }
+            if (showHowToPlay) {
+                HowToPlayDialog(
+                    onDismiss = { showHowToPlay = false }
                 )
             }
         }
@@ -409,6 +433,47 @@ fun QuizChoice(
         }
     }
 }
+
+@Composable
+fun HowToPlayDialog(
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        containerColor = Secondary,
+        onDismissRequest = onDismiss,
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Center
+            ) {
+                Text("Comment jouer ?", fontFamily = Pokemon_Police)
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Quiz \"Ombre\": Deviner le Pokémon à partir de sa silhouette.",
+                )
+                Text(
+                    text = "Quiz \"Pokédex\": Ranger dans l'ordre du numéro du pokédex les Pokémons.",
+                )
+                Text(
+                    text = "Quiz \"Cri\": Deviner le Pokémon à partir de son cri.",
+                )
+                Text(
+                    text = "Quiz \"Statistique\": Ranger les pokémons dans l'ordre croissant à " +
+                           "partir d'une statistique choisit aléatoirement.",
+                )
+            }
+        },
+        confirmButton = {}
+    )
+}
+
+
 @Composable
 fun SettingsDialog(
     musicManager: MusicViewModel = viewModel(),

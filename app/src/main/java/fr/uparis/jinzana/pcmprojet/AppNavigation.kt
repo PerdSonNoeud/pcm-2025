@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import fr.uparis.jinzana.pcmprojet.database.PokeDB
-import fr.uparis.jinzana.pcmprojet.quiz.Cris_Quiz
+import fr.uparis.jinzana.pcmprojet.quiz.CrisQuiz
 import fr.uparis.jinzana.pcmprojet.quiz.PokedexQuiz
 import fr.uparis.jinzana.pcmprojet.quiz.Shadow_Quiz
 import fr.uparis.jinzana.pcmprojet.quiz.StatQuiz
@@ -54,7 +54,7 @@ fun AppNavigation(
                     Shadow_Quiz(modifier = Modifier.padding(innerPadding))
                 }
                 entry<Screen.CrisQuiz> {
-                    Cris_Quiz(modifier = Modifier.padding(innerPadding))
+                    CrisQuiz(modifier = Modifier.padding(innerPadding))
                 }
             }
         )

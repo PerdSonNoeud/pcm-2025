@@ -122,7 +122,7 @@ fun playCry( context: Context, pokemonId: Int,volume : Float) {
 
 
 @Composable
-fun Cris_Quiz(
+fun CrisQuiz(
     modifier: Modifier = Modifier
 ) {
     val settingsViewModel: SettingsViewModel = viewModel(
