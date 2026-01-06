@@ -146,8 +146,7 @@ fun PokedexQuiz(
                     text = "Pokedex Quiz",
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
                 // replaced: show score on left and lives on right (like Shadow_Quiz)
                 Box(modifier = Modifier.fillMaxWidth()) {

@@ -153,10 +153,7 @@ fun StatQuiz(
                     text = "Stat Quiz - $rdStats",
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .background(IdBgColor)
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // replaced: show score on left and lives on right (like Shadow_Quiz)
@@ -180,6 +177,7 @@ fun StatQuiz(
                     state = listState,
                     modifier = Modifier
                         .padding(8.dp)
+                        .clip(RoundedCornerShape(8.dp))
                         .background(BgColor)
                         .fillMaxHeight()
                         .pointerInput(Unit) {
