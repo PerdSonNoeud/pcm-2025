@@ -6,7 +6,9 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,9 +38,12 @@ import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.NameBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.Selected
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import fr.uparis.jinzana.pcmprojet.utils.settings.Difficulty
-import fr.uparis.jinzana.pcmprojet.End_of_game
+import fr.uparis.jinzana.pcmprojet.EndOfGame
 import fr.uparis.jinzana.pcmprojet.Pokemon_Police
 import fr.uparis.jinzana.pcmprojet.R
 import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModel
@@ -48,8 +53,10 @@ import fr.uparis.jinzana.pcmprojet.utils.music.SoundViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModel
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.Pokemon
+import fr.uparis.jinzana.pcmprojet.ui.theme.Primary
 import fr.uparis.jinzana.pcmprojet.utils.rememberDragDropListState
 import fr.uparis.jinzana.pcmprojet.utils.music.PageMusic
+import kotlin.collections.zipWithNext
 import kotlin.random.Random
 
 @Composable
@@ -126,99 +133,131 @@ fun StatQuiz(
     var finDePartie by rememberSaveable { mutableStateOf(false) }
 
     if (finDePartie) {
-        End_of_game(score, "Pokedex")
+        EndOfGame(score, "Stat")
     } else {
-        Column(
-            modifier = modifier
-                .background(Secondary)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Primary)
         ) {
-            Text(
-                text = "Stat Quiz - $rdStats",
-                textAlign = TextAlign.Center,
-                fontSize = 30.sp,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .background(IdBgColor)
-                    .fillMaxWidth()
-            )
-
-            // replaced: show score on left and lives on right (like Shadow_Quiz)
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Score: $score",
-                    fontFamily = Pokemon_Police,
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 10.dp)
-                )
-                Text(
-                    text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 10.dp)
-                )
-            }
-
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .background(BgColor)
-                    .fillMaxHeight()
-                    .pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress (
-                            onDragStart = { dragDropState.onDragStart(it, 0) },
-                            onDragEnd = {
-                                if (dragDropState.draggedIndex != null) {
-                                    dragDropState.onDragEnd()
-                                    if (pokeList.zipWithNext().all { (a, b) -> a.id <= b.id }) {
-                                        score += 200
-                                        soundVM.play("click", settings.soundVolume)
-                                    } else {
-                                        coeurs -= 1
-                                        if (coeurs <= 0) {
-                                            finDePartie = true
-                                        }
-                                        pokeList.remove(rd)
-                                    }
-                                    if (!finDePartie) {
-                                        rd = newRandomPokemon(pokemons, pokeList)
-                                        pokeList.add(0, rd!!)
-                                    }
-                                    savedPokeIds = pokeList.map { it.id }
-                                }
-                            },
-                            onDrag = { _, dragAmount ->
-                                if (dragDropState.draggedIndex != null) {
-                                    dragDropState.onDrag(dragAmount)
-                                }
-                            }
-                        )
-                    }
+            Column(
+                modifier = modifier
+                    .fillMaxSize(.95f)
+                    .align(Center)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Secondary),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (pokeList.isNotEmpty()) {
-                    itemsIndexed(items = pokeList, key = { _, item -> item.id }) { i, p ->
-                        val isDragging = dragDropState.draggedIndex == i
-                        val isAnyDragging = dragDropState.draggedIndex != null
+                Spacer(modifier = Modifier.padding(10.dp))
+                Text(
+                    text = "Stat Quiz - $rdStats",
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(IdBgColor)
+                        .fillMaxWidth()
+                )
 
-                        Box (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .graphicsLayer(
-                                    translationY = if (isDragging) dragDropState.getDraggedOffset() else 0f,
-                                    shadowElevation = if (isDragging) 8f else 0f
-                                )
-                        ) {
-                            when {
-                                isDragging -> ShowPokemonStat(p, rdStats, Selected, true)
-                                i == 0 && !isAnyDragging -> ShowPokemonStat(p, rdStats, Selected, true)
-                                else -> ShowPokemonStat(p, rdStats)
+                // replaced: show score on left and lives on right (like Shadow_Quiz)
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Score: $score",
+                        fontFamily = Pokemon_Police,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 10.dp)
+                    )
+                    Text(
+                        text = "\uD83D\uDDA4".repeat(initialCoeurs - coeurs) + "❤️".repeat(coeurs),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 10.dp)
+                    )
+                }
+
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(BgColor)
+                        .fillMaxHeight()
+                        .pointerInput(Unit) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { dragDropState.onDragStart(it, 0) },
+                                onDragEnd = {
+                                    if (dragDropState.draggedIndex != null) {
+                                        dragDropState.onDragEnd()
+                                        if (isSortedByStat(pokeList, rdStats)) {
+                                            score += 200
+                                            soundVM.play("click", settings.soundVolume)
+                                        } else {
+                                            coeurs -= 1
+                                            if (coeurs <= 0) {
+                                                finDePartie = true
+                                            }
+                                            pokeList.remove(rd)
+                                        }
+                                        if (!finDePartie) {
+                                            rd = newRandomPokemon(pokemons, pokeList)
+                                            pokeList.add(0, rd!!)
+                                        }
+                                        savedPokeIds = pokeList.map { it.id }
+                                    }
+                                },
+                                onDrag = { _, dragAmount ->
+                                    if (dragDropState.draggedIndex != null) {
+                                        dragDropState.onDrag(dragAmount)
+                                    }
+                                }
+                            )
+                        }
+                ) {
+                    if (pokeList.isNotEmpty()) {
+                        itemsIndexed(items = pokeList, key = { _, item -> item.id }) { i, p ->
+                            val isDragging = dragDropState.draggedIndex == i
+                            val isAnyDragging = dragDropState.draggedIndex != null
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .graphicsLayer(
+                                        translationY = if (isDragging) dragDropState.getDraggedOffset() else 0f,
+                                        shadowElevation = if (isDragging) 8f else 0f
+                                    )
+                            ) {
+                                when {
+                                    isDragging -> ShowPokemonStat(p, rdStats, Selected, true)
+                                    i == 0 && !isAnyDragging -> ShowPokemonStat(
+                                        p,
+                                        rdStats,
+                                        Selected,
+                                        true
+                                    )
+
+                                    else -> ShowPokemonStat(p, rdStats)
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+fun isSortedByStat(
+    pokeList: List<Pokemon>,
+    value: String
+): Boolean {
+    return when (value) {
+        "Health" -> { pokeList.zipWithNext().all { (a, b) -> a.health <= b.health } }
+        "Attack" -> { pokeList.zipWithNext().all { (a, b) -> a.attack <= b.attack } }
+        "Defense" -> { pokeList.zipWithNext().all { (a, b) -> a.defense <= b.defense } }
+        "Sp. Atk" -> { pokeList.zipWithNext().all { (a, b) -> a.specialAttack <= b.specialAttack } }
+        "Sp. Def" -> { pokeList.zipWithNext().all { (a, b) -> a.specialDefense <= b.specialDefense } }
+        "Speed" -> { pokeList.zipWithNext().all { (a, b) -> a.speed <= b.speed } }
+        else -> { false }
     }
 }
 

@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun End_of_game(
+fun EndOfGame(
     score: Int,
     currentQuiz: String
 ) {

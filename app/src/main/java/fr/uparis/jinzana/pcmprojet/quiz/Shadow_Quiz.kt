@@ -52,7 +52,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import fr.uparis.jinzana.pcmprojet.utils.settings.Difficulty
-import fr.uparis.jinzana.pcmprojet.End_of_game
+import fr.uparis.jinzana.pcmprojet.EndOfGame
 import fr.uparis.jinzana.pcmprojet.Pokemon_Police
 import fr.uparis.jinzana.pcmprojet.R
 import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModel
@@ -183,7 +183,7 @@ fun Shadow_Quiz(
         }
 
         if (finDePartie) {
-            End_of_game(score, "Shadow")
+            EndOfGame(score, "Shadow")
         }
 
         Column(

@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.uparis.jinzana.pcmprojet.utils.settings.Difficulty
-import fr.uparis.jinzana.pcmprojet.End_of_game
+import fr.uparis.jinzana.pcmprojet.EndOfGame
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModel
 import fr.uparis.jinzana.pcmprojet.database.PokeViewModelFactory
 import fr.uparis.jinzana.pcmprojet.database.Pokemon
@@ -210,7 +210,7 @@ fun Cris_Quiz(
     }
 
     if (finDePartie) {
-        End_of_game(score, "Cris")
+        EndOfGame(score, "Cris")
     } else {
         BoxWithConstraints {
             val isLandscape = maxWidth > maxHeight
