@@ -7,7 +7,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import fr.uparis.jinzana.pcmprojet.HeartRelaod.HEART_RECHARGE_TIME
+import fr.uparis.jinzana.pcmprojet.utils.HeartReload.HEART_RECHARGE_TIME
+import fr.uparis.jinzana.pcmprojet.database.PokeDB
+import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsDao
+import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -15,19 +18,13 @@ class HeartNotificationWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-
         val db = PokeDB.getInstance(applicationContext)
         val dao = db.settingsDao()
-
         var settings = dao.getSettings() ?: return@withContext Result.success()
 
         Log.d("HeartWorker", "Worker started with hearts=${settings.currentHearts}")
-
-
         settings = rechargeHeartsIfNeeded(settings, dao)
-
         if (!settings.premium &&
             ( settings.currentHearts == settings.maxHearts) && settings.notifIsActive
 
@@ -38,7 +35,6 @@ class HeartNotificationWorker(
             Log.d("HeartWorker", "Notification envoyée")
 
         }
-
         return@withContext Result.success()
     }
 
@@ -46,12 +42,10 @@ class HeartNotificationWorker(
         settings: SettingsEntity,
         dao: SettingsDao
     ): SettingsEntity {
-
         if (settings.currentHearts >= settings.maxHearts) {
             return settings.copy(lastPlayTime = System.currentTimeMillis())
                 .also { dao.insertSettings(it) }
         }
-
         val now = System.currentTimeMillis()
         val elapsed = now - settings.lastPlayTime
         val heartsToAdd = (elapsed / HEART_RECHARGE_TIME).toInt()

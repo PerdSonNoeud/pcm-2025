@@ -8,21 +8,19 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import fr.uparis.jinzana.pcmprojet.ui.theme.PCMProjetTheme
+import fr.uparis.jinzana.pcmprojet.utils.music.MusicViewModel
+import fr.uparis.jinzana.pcmprojet.utils.music.SoundManager
 import java.util.concurrent.TimeUnit
+
 
 class MainActivity : ComponentActivity() {
     lateinit var soundManager: SoundManager
     private val musicViewModel: MusicViewModel by viewModels()
-    private val settingsViewModel: SettingsViewModel by viewModels {
-        SettingsViewModelFactory(applicationContext)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
        // enableEdgeToEdge()
@@ -47,13 +45,5 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         musicViewModel.pause()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PCMProjetTheme {
-       // Greeting(modifier = Modifier.padding())
     }
 }

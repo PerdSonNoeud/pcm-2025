@@ -51,11 +51,21 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Dialog
+import fr.uparis.jinzana.pcmprojet.database.PokeDB
 import fr.uparis.jinzana.pcmprojet.ui.theme.BgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.IdBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.NameBgColor
 import fr.uparis.jinzana.pcmprojet.ui.theme.Primary
 import fr.uparis.jinzana.pcmprojet.ui.theme.Secondary
+import fr.uparis.jinzana.pcmprojet.utils.music.MusicViewModel
+import fr.uparis.jinzana.pcmprojet.utils.music.PageMusic
+import fr.uparis.jinzana.pcmprojet.utils.score.ScoreViewModel
+import fr.uparis.jinzana.pcmprojet.utils.score.ScoreViewModelFactory
+import fr.uparis.jinzana.pcmprojet.utils.music.SoundViewModel
+import fr.uparis.jinzana.pcmprojet.utils.music.SoundViewModelFactory
+import fr.uparis.jinzana.pcmprojet.utils.settings.Difficulty
+import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModel
+import fr.uparis.jinzana.pcmprojet.utils.settings.SettingsViewModelFactory
 import kotlinx.coroutines.delay
 
 
